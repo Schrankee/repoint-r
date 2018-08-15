@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-�*�
-�*******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Jul 16, 2004
@@ -41,45 +41,44 @@ import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfDocbaseMap;
 import com.documentum.fc.common.DfLogger;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
  * Generic docbase login dialog.
- * 
- * 
+ *
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
-public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
-	Text txtName = null;
-
-	Text txtPasswd = null;
-
-	Text txtDomain = null;
-
-	Combo docbaseList = null;
-
-	String docbaseName = null;
-
-	Label lblStatus = null;
+public class DocbaseLoginDialog extends Dialog {
+	private Text txtName = null;
+	private Text txtPasswd = null;
+	private Text txtDomain = null;
+	private Combo docbaseList = null;
+	private String docbaseName = null;
+	private Label lblStatus = null;
 
 	private int width = 400;
 	private int height = 300;
 
 	public DocbaseLoginDialog(Shell parent) {
 		super(parent);
-
 	}
 
 	/**
 	 * Sets the name of the docbase for which login is required.
-	 * 
-	 * @param docbaseName
+	 *
+	 * @param docbaseName name of Documentum base
 	 */
 	public void setDocbaseName(String docbaseName) {
 		if ((docbaseName != null) && (docbaseName.length() > 0)) {
@@ -89,8 +88,8 @@ public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
 
 	/**
 	 * Gets the docbase name for which login is being done or was done.
-	 * 
-	 * @return
+	 *
+	 * @return name of Documentum base
 	 */
 	public String getDocbaseName() {
 		return docbaseName;
@@ -98,7 +97,7 @@ public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
 	 * .Composite)
@@ -137,11 +136,11 @@ public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
 		docbaseList.setLayoutData(PluginHelper.getFormData(30, 45, 0, 50));
 
 		return composite;
-	}// createDialogArea
+	} // createDialogArea
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.dialogs.Dialog#okPressed()
 	 */
 	protected void okPressed() {
@@ -151,9 +150,8 @@ public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
 
 		int selIndx = docbaseList.getSelectionIndex();
 		String docbase = docbaseList.getItem(selIndx);
-		boolean authenticated = PluginState.addIdentity(username, password,
-				domain, docbase, true);
-		if (authenticated == true) {
+		boolean authenticated = PluginState.addIdentity(username, password, domain, docbase, true);
+		if (authenticated) {
 			super.okPressed();
 		} else {
 			MessageDialog
@@ -166,50 +164,46 @@ public class DocbaseLoginDialog extends org.eclipse.jface.dialogs.Dialog {
 	/**
 	 * Creates and returns a drop down list control that will be populated with
 	 * the list of docbases visible.
-	 * 
-	 * @param parent
-	 *            The parent composite within which the dropdownlist is created
+	 *
+	 * @param parent The parent composite within which the dropdownlist is created
 	 * @return Combo (style=DROP_DOWN) containing list of docbases. If an error
 	 *         occurs the Combo box is empty.
 	 */
-	protected Combo getDocbasePickList(Composite parent) {
-		Combo docbaseList = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+	private Combo getDocbasePickList(Composite parent) {
+		Combo docbaseLst = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 
 		// if docbase name already specified just show that.
 		String docName = getDocbaseName();
 		if ((docName != null) && (docName.length() > 0)) {
-			docbaseList.add(docName);
-			docbaseList.select(0);
-			return docbaseList;
+			docbaseLst.add(docName);
+			docbaseLst.select(0);
+			return docbaseLst;
 		}
 
 		try {
 			IDfClient localClient = DfClient.getLocalClient();
 			IDfDocbaseMap docMap = localClient.getDocbaseMap();
 			int numDocbases = docMap.getDocbaseCount();
-			ArrayList lstDocbases = new ArrayList(numDocbases);
+			ArrayList<String> lstDocbases = new ArrayList<String>(numDocbases);
 			for (int i = 0; i < numDocbases; i++) {
 				String docbaseName = docMap.getDocbaseName(i);
-				// docbaseList.add(docbaseName);
+				// docbaseLst.add(docbaseName);
 				lstDocbases.add(docbaseName);
 			}
 
 			Collections.sort(lstDocbases);
 
-			for (int i = 0; i < lstDocbases.size(); i++) {
-				String name = (String) lstDocbases.get(i);
-				docbaseList.add(name);
+			for (String lstDocbase : lstDocbases) {
+				docbaseLst.add(lstDocbase);
 			}
-			docbaseList.select(0);
+			docbaseLst.select(0);
 
 		} catch (Exception dfe) {
 			DfLogger.error(this, "Error getting repoList", null, dfe);
-			docbaseList.add("Error getting repository list: "
-					+ dfe.getMessage());
-			MessageDialog.openError(super.getShell(), "Repo List Error",
-					"Error getting Repo List: " + dfe.getMessage());
+			docbaseLst.add("Error getting repository list: " + dfe.getMessage());
+			MessageDialog.openError(super.getShell(), "Repo List Error", "Error getting Repo List: " + dfe.getMessage());
 		}
-		return docbaseList;
+		return docbaseLst;
 	}
 
 	public void setSize(int width, int height) {

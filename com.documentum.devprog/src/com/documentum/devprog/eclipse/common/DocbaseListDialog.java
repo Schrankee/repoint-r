@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-�*�
-�*******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Jun 27, 2005
@@ -38,7 +38,17 @@ package com.documentum.devprog.eclipse.common;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -59,9 +69,9 @@ import org.eclipse.swt.widgets.Shell;
  * @author Aashish Patil(patil_aashish@emc.com)
  */
 public class DocbaseListDialog extends Dialog {
-	ListViewer repoListViewer = null;
+	private ListViewer repoListViewer = null;
 
-	String selectedRepo = null;
+	private String selectedRepo = null;
 	private int width = 400;
 	private int height = 300;
 
@@ -98,10 +108,10 @@ public class DocbaseListDialog extends Dialog {
 		});
 
 		Font oldFont = repoListViewer.getList().getFont();
-		FontData fdata[] = oldFont.getFontData();
-		for (int i = 0; i < fdata.length; i++) {
-			fdata[i].setHeight(10);
-			fdata[i].setName("Arial");
+		FontData[] fdata = oldFont.getFontData();
+		for (FontData aFdata : fdata) {
+			aFdata.setHeight(10);
+			aFdata.setName("Arial");
 		}
 		Font newFont = new Font(super.getShell().getDisplay(), fdata);
 		repoListViewer.getList().setFont(newFont);
@@ -163,8 +173,7 @@ public class DocbaseListDialog extends Dialog {
 			try {
 				return PluginHelper.getSortedDocbaseList().toArray();
 			} catch (Throwable th) {
-				MessageDialog.openError(null, "Repo List Error",
-						th.getMessage());
+				MessageDialog.openError(null, "Repo List Error", th.getMessage());
 			}
 			return new Object[] {};
 

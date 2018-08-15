@@ -10,69 +10,73 @@ Contributors:
     SAP AG - initial API and implementation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<version>1.0.0-SNAPSHOT</version>
-	<groupId>repoint</groupId>
-	<artifactId>parent</artifactId>
-	<packaging>pom</packaging>
-	<name>RCP Parent</name>
+    <version>1.0.0-SNAPSHOT</version>
+    <groupId>repoint</groupId>
+    <artifactId>repoint-parent</artifactId>
+    <packaging>pom</packaging>
+    <name>Repoint RCP Parent</name>
 
-	<properties>
-		<tycho-version>0.23.1</tycho-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+    <properties>
+        <tycho-version>0.24.0</tycho-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<modules>
-		<module>repoint-eclipse-repository</module>
-		<module>com.documentum.devprog</module>
-		<module>com.documentum.feature</module>
-		<module>com.documentum.dfc</module>
-		<module>com.emc.repoint.scripts</module>
-		<module>helios</module>
-	</modules>
+    <modules>
+        <module>repoint-eclipse-repository</module>
+        <module>com.documentum.devprog</module>
+        <module>com.documentum.feature</module>
+        <module>com.documentum.dfc</module>
+        <module>com.emc.repoint.scripts</module>
+        <!-- module>eclipse_3_6_helios</module -->
+        <module>eclipse_4_5_mars</module>
+        <!-- module>eclipse_4_7_oxygen</module -->
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<target>
-						<artifact>
-							<groupId>repoint</groupId>
-							<artifactId>helios</artifactId>
-							<version>1.0.0-SNAPSHOT</version>
-						</artifact>
-					</target>
-					<environments>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-<!--						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>-->
-					</environments>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-		</plugins>
-	</build>
+    </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <environments>
+                        <environment>
+                            <os>win32</os>
+                            <ws>win32</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                        <!--environment>
+                            <os>linux</os>
+                            <ws>gtk</ws>
+                            <arch>x86_64</arch>
+                        </environment-->
+                        <!--environment>
+                            <os>macosx</os>
+                            <ws>cocoa</ws>
+                            <arch>x86_64</arch>
+                        </environment>-->
+                    </environments>
+                    <target>
+                        <artifact>
+                            <groupId>repoint</groupId>
+                            <!--artifactId>eclipse-helios</artifactId-->
+                            <artifactId>eclipse-mars</artifactId>
+                            <!--artifactId>eclipse-oxygen</artifactId-->
+                            <version>1.0.0-SNAPSHOT</version>
+                        </artifact>
+                    </target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

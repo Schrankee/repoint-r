@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Feb 3, 2006
@@ -108,9 +108,6 @@ public class DocbaseNode implements ITypeViewData {
 
 		JobInfo jobInfo = new JobInfo(JobInfo.JOB_ROOT, this.getDocbase(), null);
 		lst.add(jobInfo);
-
-		DocAppInfo di = new DocAppInfo(DocAppInfo.APP_ROOT, this.getDocbase());
-		lst.add(di);
 
 		XMLAppInfo xi = new XMLAppInfo(XMLAppInfo.XMLAPP_ROOT,
 				this.getDocbase(), null);

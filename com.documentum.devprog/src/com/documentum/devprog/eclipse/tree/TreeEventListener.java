@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  * 
-  *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Mar 3, 2004
@@ -61,20 +61,23 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * @author Aashish Patil (aashish.patil@documentum.com)
- * 
  */
-public class TreeEventListener implements ISelectionChangedListener,
-		ITreeViewerListener, IDoubleClickListener {
+public class TreeEventListener implements ISelectionChangedListener, ITreeViewerListener, IDoubleClickListener {
 
-	Shell shell = null;
+	Shell shell;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param sh swt shell
+	 */
 	public TreeEventListener(Shell sh) {
 		shell = sh;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(
 	 * org.eclipse.jface.viewers.SelectionChangedEvent)
@@ -87,7 +90,7 @@ public class TreeEventListener implements ISelectionChangedListener,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.viewers.ITreeViewerListener#treeCollapsed(org.eclipse
 	 * .jface.viewers.TreeExpansionEvent)
@@ -99,10 +102,9 @@ public class TreeEventListener implements ISelectionChangedListener,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.eclipse.jface.viewers.ITreeViewerListener#treeExpanded(org.eclipse
-	 * .jface.viewers.TreeExpansionEvent)
+	 * org.eclipse.jface.viewers.ITreeViewerListener#treeExpanded(org.eclipse.jface.viewers.TreeExpansionEvent)
 	 */
 	public void treeExpanded(TreeExpansionEvent event) {
 		try {
@@ -110,7 +112,7 @@ public class TreeEventListener implements ISelectionChangedListener,
 			TreeViewer treeViewer = (TreeViewer) event.getTreeViewer();
 			Integer nodeType = treeData.getType();
 			if (nodeType.equals(DocbaseItem.DOCBASE_TYPE)) {
-				treeViewer.update(treeData, null);
+				//treeViewer.update(treeData, null);
 			}
 
 		} catch (Exception dfe) {
@@ -119,14 +121,15 @@ public class TreeEventListener implements ISelectionChangedListener,
 	}
 
 	/**
-	 * handle double click event of a tree node. Currently it shows the
+	 * Handle double click event of a tree node. Currently it shows the
 	 * properties dump of the selected object.
+	 *
+	 * @param dce event to process
 	 */
 	public void doubleClick(DoubleClickEvent dce) {
 		try {
 			// TreeViewer viewer = (TreeViewer) dce.getSource();
-			IStructuredSelection selection = (IStructuredSelection) dce
-					.getSelection();
+			IStructuredSelection selection = (IStructuredSelection) dce.getSelection();
 			Object selObj = selection.getFirstElement();
 			// showPropertiesView(selObj);
 			PluginHelper.showFolderContents(selObj);
@@ -138,38 +141,33 @@ public class TreeEventListener implements ISelectionChangedListener,
 	/**
 	 * Shows the properties view by obtaining the selected objects r_object_id
 	 * and handing it to the properties dump view.
-	 * 
-	 * @param selObj
-	 *            This object is either assumed to be IDfTypedObject or <br>
-	 *            IDfVirtualDocumentNode.
+	 *
+	 * @param selObj This object is either assumed to be IDfTypedObject or <br>
+	 *               IDfVirtualDocumentNode.
 	 */
 	private void showPropertiesView(Object selObj) {
 		try {
 			DocbaseItem treeData = (DocbaseItem) selObj;
 			Integer nodeType = treeData.getType();
-			String objId = null;
+			String objId;
 			if (nodeType.equals(DocbaseItem.TYPED_OBJ_TYPE)) {
 				IDfTypedObject tObj = (IDfTypedObject) treeData.getData();
 				objId = tObj.getString("r_object_id");
 			} else if (nodeType.equals(DocbaseItem.VDOC_TYPE)) {
-				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData
-						.getData();
+				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData.getData();
 				objId = vDocNode.getBasicAttributes().getString("r_object_id");
 			} else {
 				return;
 			}
-			// System.out.println(objId);
 
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			PropertiesView viewPart = (PropertiesView) actPage
-					.showView(DevprogPlugin.PROP_VIEW_ID);
+			PropertiesView viewPart = (PropertiesView) actPage.showView(DevprogPlugin.PROP_VIEW_ID);
 			viewPart.setObjectId(objId);
 			viewPart.showPropertiesTable();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
-	}// showPropertiesView(...)
-}// TreeEventListener
+	}
+}

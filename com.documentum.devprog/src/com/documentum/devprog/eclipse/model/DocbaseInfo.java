@@ -15,80 +15,97 @@ import java.io.Serializable;
  */
 
 public class DocbaseInfo implements Serializable {
-    private IDfSessionManager sessionManager;
-    private String userName;
-    private String userPassword;
-    private String docbaseName;
-    private String docbaseId = "";
+	private IDfSessionManager sessionManager;
+	private String userName;
+	private String userPassword;
+	private String docbaseName;
+	private String docbaseId = "";
 
-    transient private IDfClient dfClient;
+	private transient IDfClient dfClient;
 
-    private String docbrokerHost;
-    private boolean savePassword;
+	private String docbrokerHost;
+	private boolean savePassword;
 
-    public DocbaseInfo(IDfSessionManager sessionManager, IDfClient dfClient, String docbase, String docbrokerHost, String userName, String password, boolean savePassword) {
-        this.sessionManager = sessionManager;
-        this.dfClient = dfClient;
-        this.docbrokerHost = docbrokerHost;
-        this.userName = userName;
-        this.userPassword = password;
-        this.savePassword = savePassword;
-        this.docbaseName = docbase;
-        try {
-            this.docbaseId = Integer.toHexString(Integer.parseInt(sessionManager.getSession(docbase).getDocbaseId()));
-        } catch (DfException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param sessionManager session manager
+	 * @param dfClient       df client
+	 * @param docbase        base name
+	 * @param docbrokerHost  documentum broker host
+	 * @param userName       username
+	 * @param password       password
+	 * @param savePassword   keep password
+	 */
+	public DocbaseInfo(IDfSessionManager sessionManager, IDfClient dfClient, String docbase, String docbrokerHost, String userName, String password, boolean savePassword) {
+		this.sessionManager = sessionManager;
+		this.dfClient = dfClient;
+		this.docbrokerHost = docbrokerHost;
+		this.userName = userName;
+		this.userPassword = password;
+		this.savePassword = savePassword;
+		this.docbaseName = docbase;
+		try {
+			//TODO this is not correct. leading zeros are missing
+			this.docbaseId = Integer.toHexString(Integer.parseInt(sessionManager.getSession(docbase).getDocbaseId()));
+			//sessionManager.getSession(docbase).getDocbaseConfig().getObjectId()
+		} catch (DfException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public String getUserName() {
-        return userName;
-    }
+	public String getUserName() {
+		return userName;
+	}
 
-    public String getUserPassword() {
-        return userPassword;
-    }
+	public String getUserPassword() {
+		return userPassword;
+	}
 
-    public IDfSessionManager getSessionManager() {
-        return sessionManager;
-    }
+	public IDfClient getClient() {
+		return dfClient;
+	}
 
-    public String getDocbrokerHost() {
-        return docbrokerHost;
-    }
+	public IDfSessionManager getSessionManager() {
+		return sessionManager;
+	}
 
-    public String getDocbaseId() {
-        return docbaseId;
-    }
+	public String getDocbrokerHost() {
+		return docbrokerHost;
+	}
 
-    public String getDocbaseName() {
-        return docbaseName;
-    }
+	public String getDocbaseId() {
+		return docbaseId;
+	}
 
-    public void prepareForSave() {
-        if(!savePassword) {
-            userPassword = null;
-        }
-    }
+	public String getDocbaseName() {
+		return docbaseName;
+	}
 
-    public void restore() {
-        try {
-            System.out.println("Restoring " + docbrokerHost + " " +userName + " " + userPassword + " " + docbaseName);
-            dfClient = DfClient.getLocalClientEx();
-            IDfTypedObject config = dfClient.getClientConfig();
-            config.setString("primary_host", docbrokerHost);
-            config.setInt("primary_port", 1489);
+	public void prepareForSave() {
+		if (!savePassword) {
+			userPassword = null;
+		}
+	}
 
-            IDfLoginInfo li = new DfLoginInfo();
-            li.setUser(userName);
-            li.setPassword(userPassword);
-            li.setDomain(null);
+	public void restore() {
+		try {
+			System.out.println("Restoring " + docbrokerHost + " " + userName + " " + userPassword + " " + docbaseName);
+			dfClient = DfClient.getLocalClientEx();
+			IDfTypedObject config = dfClient.getClientConfig();
+			config.setString("primary_host", docbrokerHost);
+			config.setInt("primary_port", 1489);
 
-            sessionManager = dfClient.newSessionManager();
-            sessionManager .clearIdentity(docbaseName);
-            sessionManager .setIdentity(docbaseName, li);
-        } catch(DfException dfe) {
-            dfe.printStackTrace();
-        }
-    }
+			IDfLoginInfo li = new DfLoginInfo();
+			li.setUser(userName);
+			li.setPassword(userPassword);
+			li.setDomain(null);
+
+			sessionManager = dfClient.newSessionManager();
+			sessionManager.clearIdentity(docbaseName);
+			sessionManager.setIdentity(docbaseName, li);
+		} catch (DfException dfe) {
+			dfe.printStackTrace();
+		}
+	}
 }

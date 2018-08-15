@@ -14,14 +14,14 @@ Contributors:
 	<modelVersion>4.0.0</modelVersion>
 
 	<version>0.1.0-SNAPSHOT</version>
-	<artifactId>example-feature</artifactId>
+	<artifactId>example_feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 	<name>Repoint RCP Feature</name>
 
 	<parent>
 		<version>1.0.0-SNAPSHOT</version>
 		<groupId>repoint</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>repoint-parent</artifactId>
 	</parent>
 
 </project>

@@ -105,7 +105,7 @@
    </plugins>
 
    <features>
-      <feature id="example-feature" version="0.0.0"/>
+      <feature id="example_feature" version="0.0.0"/>
       <feature id="org.eclipse.rcp" version="0.0.0"/>
       <feature id="org.eclipse.equinox.p2.user.ui" version="0.0.0"/>
    </features>

@@ -58,8 +58,7 @@ public class RCPApp implements IApplication {
 		}
 		try {
 
-			int returnCode = PlatformUI.createAndRunWorkbench(disp,
-					wbenchAdvisor);
+			int returnCode = PlatformUI.createAndRunWorkbench(disp, wbenchAdvisor);
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;
 

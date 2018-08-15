@@ -126,8 +126,8 @@
                 application="com.documentum.devprog.eclipsePlugin.RepointApp"
                 name="EMC Documentum Repository Interrogation Utility (Repoint)">
             <property
-                    name="aboutText"
-                    value="Repository Interrogation Utility&#x0A;EMC Developer Network 2006"/>
+                  name="aboutText"
+                  value="Repository Interrogation Utility EMC Developer Network 2006"/>
             <property
                     name="aboutImage"
                     value="icons/emc_yellowbk_48.gif"/>

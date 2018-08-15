@@ -1,42 +1,43 @@
-/*******************************************************************************
- * Copyright (c) 2005-2006, EMC Corporation 
+/* ******************************************************************************
+ * Copyright (c) 2005-2006, EMC Corporation
  * All rights reserved.
 
- * Redistribution and use in source and binary forms, 
- * with or without modification, are permitted provided that 
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided that
  * the following conditions are met:
  *
- * - Redistributions of source code must retain the above copyright 
+ * - Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  * - Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * - Neither the name of the EMC Corporation nor the names of its 
+ * - Neither the name of the EMC Corporation nor the names of its
  *   contributors may be used to endorse or promote products derived from
  *   this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Mar 31, 2005
  * Documentum Developer Program 2003
- * 
+ *
  */
 package com.documentum.devprog.eclipse.common;
 
 import com.documentum.fc.common.DfLogger;
+import com.documentum.services.config.ConfigException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,8 +48,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xpath.domapi.XPathEvaluatorImpl;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,7 +65,7 @@ import org.xml.sax.SAXException;
 /**
  * This class represents a helper to access and manipulate an XML document using
  * XPath.
- * 
+ *
  * @author Aashish Patil (patil_aashish@emc.com)
  */
 public class XPathHelper {
@@ -97,7 +101,7 @@ public class XPathHelper {
 
 	// private static DOMParser s_docBldr = null;
 
-	private DOMParser m_domParser = null;
+	//private DOMParser m_domParser = null;
 
 	private static String XERCES_DOM_FACT = "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl";
 
@@ -116,8 +120,7 @@ public class XPathHelper {
 			// Thread.currentThread().getContextClassLoader();
 			try {
 
-				DocumentBuilderFactory fact = DocumentBuilderFactory
-						.newInstance();
+				DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
 				fact.setIgnoringComments(false);
 				fact.setValidating(false);
 				fact.setExpandEntityReferences(false);
@@ -128,8 +131,7 @@ public class XPathHelper {
 				s_docBldr.setEntityResolver(new NullEntityResolver());
 
 			} catch (ParserConfigurationException pce) {
-				throw new RuntimeException(
-						"Unable to configure XML Parser. BOConfigService will be unavailable");
+				throw new RuntimeException("Unable to configure XML Parser. BOConfigService will be unavailable");
 			} finally {
 				/*
 				 * if(oldLoader != null) {
@@ -143,26 +145,18 @@ public class XPathHelper {
 	}
 
 	private void initDOMParser() {
-
+		javax.xml.parsers.DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
 		try {
-			m_domParser = new DOMParser();
-			m_domParser
-					.setFeature(
-							"http://apache.org/xml/features/nonvalidating/load-external-dtd",
-							false);
-			m_domParser.setFeature(
-					"http://apache.org/xml/features/dom/defer-node-expansion",
-					false);
-
-		} catch (Exception ex) {
-			DfLogger.debug(this, "", null, ex);
+			DocumentBuilder docBuilder  = dfactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			DfLogger.debug(this, "", null, e);
 		}
 
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.documentum.devprog.common.config.IBOConfig#getValue(java.lang.String)
 	 */
@@ -178,14 +172,10 @@ public class XPathHelper {
 	 * Returns the text children of the nodes found as a result of executing the
 	 * xpath expression. If no results are found an empty array (length=0) is
 	 * returned.
-	 * 
-	 * 
 	 */
 	public String[] getValues(String expression) {
 		// WDKLogger.debug("evaluating " + expression);
-		XPathResult results = (XPathResult) m_xpathEval.evaluate(expression,
-				m_contextNode, m_nsResolver,
-				XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+		XPathResult results = (XPathResult) m_xpathEval.evaluate(expression, m_contextNode, m_nsResolver, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 		// WDKLogger.debug("got results " + results);
 		ArrayList resultList = new ArrayList(5);
 		Node res;
@@ -214,7 +204,7 @@ public class XPathHelper {
 	 * multiple results are returned by the expression the first is used. Order
 	 * of results is not known in case of multiple results. Caller should try to
 	 * ensure that the expression identifies one element.
-	 * 
+	 *
 	 * @param expression
 	 * @param value
 	 */
@@ -233,7 +223,7 @@ public class XPathHelper {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.documentum.devprog.common.config.IBOConfig#getXMLAttributeValue(java
 	 * .lang.String, java.lang.String)
@@ -250,13 +240,9 @@ public class XPathHelper {
 	 * Returns the values of the attribute specified in the list of XML Nodes
 	 * obtained by evaluating the specified XPath expression. The values
 	 * returned are unordered.
-	 * 
-	 * 
 	 */
 	public String[] getXMLAttributeValues(String expression, String attrName) {
-		XPathResult results = (XPathResult) m_xpathEval.evaluate(expression,
-				m_contextNode, m_nsResolver,
-				XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+		XPathResult results = (XPathResult) m_xpathEval.evaluate(expression, m_contextNode, m_nsResolver, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 
 		ArrayList lstResults = new ArrayList(5);
 		Node curResult = null;
@@ -279,15 +265,14 @@ public class XPathHelper {
 	 * Sets the value of attribute on the XML element identified by the
 	 * expression. If multiple elements are identified by the expression the
 	 * first one is used.
-	 * 
+	 * <p>
 	 * if attribute does not exist on the element it is not added.
-	 * 
+	 *
 	 * @param expression
 	 * @param attrName
 	 * @param value
 	 */
-	public void setAttributeValue(String expression, String attrName,
-			String value) {
+	public void setAttributeValue(String expression, String attrName, String value) {
 		Node node = getValueAsXMLNode(expression);
 		DfLogger.debug(this, "setAttributeValue got node: " + node, null, null);
 		if (node == null) {
@@ -304,7 +289,7 @@ public class XPathHelper {
 	/**
 	 * Removes the XML node identified by the expression.All children of the
 	 * element are removed by default.
-	 * 
+	 *
 	 * @param expression
 	 */
 	public void removeElement(String expression) {
@@ -323,7 +308,7 @@ public class XPathHelper {
 	/**
 	 * Removes the attribute from the XML element identified by the xpath
 	 * expression.
-	 * 
+	 *
 	 * @param expression
 	 * @param attrName
 	 */
@@ -344,9 +329,8 @@ public class XPathHelper {
 	/**
 	 * Reads the configuration information from the specified config source. No
 	 * caching is done.
-	 * 
-	 * @param confSrc
-	 *            InputStream from which to read config information.
+	 *
+	 * @param confSrc InputStream from which to read config information.
 	 */
 	public XPathHelper(InputStream confSrc) throws Exception {
 		readConfig(confSrc);
@@ -355,7 +339,7 @@ public class XPathHelper {
 
 	/**
 	 * Sets up an xpath helper for the specified file.
-	 * 
+	 *
 	 * @param filePath
 	 */
 	public XPathHelper(String filePath) throws Exception {
@@ -370,14 +354,13 @@ public class XPathHelper {
 
 	/**
 	 * Sets up an xpath helper with the specified node as the root node. All
-	 * 
+	 *
 	 * @param rootNode
 	 * @throws ConfigException
 	 */
 	public XPathHelper(Element rootNode) throws Exception {
 		if (rootNode == null) {
-			throw new Exception(
-					"Unable to setup xpath helper as root(context) node is null");
+			throw new Exception("Unable to setup xpath helper as root(context) node is null");
 		}
 		m_contextNode = rootNode;
 		m_confDoc = m_contextNode.getOwnerDocument();
@@ -388,7 +371,7 @@ public class XPathHelper {
 	 * Reads and parses the XML Config file. If <code>confSrc</code> is null,
 	 * then attempt is made to read from the default location in the jar from a
 	 * file named boconfig.xml
-	 * 
+	 *
 	 * @param confSrc
 	 */
 	private void readConfig(InputStream confSrc) throws Exception {
@@ -405,15 +388,13 @@ public class XPathHelper {
 			 * m_domParser.parse(new InputSource(confSrc)); m_confDoc =
 			 * m_domParser.getDocument();
 			 */
-			DfLogger.debug(this, "Document class: " + m_confDoc.getClass(),
-					null, null);
+			DfLogger.debug(this, "Document class: " + m_confDoc.getClass(), null, null);
 		} catch (IOException ioe) {
 			throw new Exception("IO Error while reading config info ",
 
-			ioe);
+					ioe);
 		} catch (SAXException se) {
-			throw new Exception("SAX Parser Error while reading config info ",
-					se);
+			throw new Exception("SAX Parser Error while reading config info ", se);
 		} catch (RuntimeException re) {
 			throw new Exception("BOConfigService runtime error", re);
 		}
@@ -422,11 +403,14 @@ public class XPathHelper {
 	/**
 	 * Sets up the evaluator, nsresolver and context node from the config file
 	 * Document
-	 * 
 	 */
 	private void setupXPathParams() {
-		m_xpathEval = new XPathEvaluatorImpl(m_confDoc);
-
+		XPathFactory xfac = XPathFactory.newInstance();
+		XPath xpath  = xfac.newXPath();
+		//xpath.evaluate("", m_contextNode, XPathConstants.NODESET);
+		//NamespaceContext nsContext =  null;
+		//m_contextNode.getOwnerDocument().getNamespaceURI();
+		//xpath.setNamespaceContext(nsContext);
 		if ((m_contextNode == null) && (m_confDoc != null)) {
 			Element boconfigElem = m_confDoc.getDocumentElement();
 			m_contextNode = boconfigElem;
@@ -438,31 +422,37 @@ public class XPathHelper {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.documentum.devprog.common.boconfig.IBOConfig#getValuesAsXMLNodes(
 	 * java.lang.String)
 	 */
 	public Node[] getValuesAsXMLNodes(String expression) {
 
-		XPathResult results = (XPathResult) m_xpathEval.evaluate(expression,
-				m_contextNode, m_nsResolver,
-				XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-		ArrayList lstResults = new ArrayList(5);
-
-		Node curResult = null;
-		while ((curResult = results.iterateNext()) != null) {
-			lstResults.add(curResult);
+		XPathFactory xfac = XPathFactory.newInstance();
+		XPath xpath = xfac.newXPath();
+		NodeList results = null;
+		ArrayList<Node> lstResults = new ArrayList<Node>(5);
+		try {
+			results = (NodeList) xpath.evaluate("", m_contextNode, XPathConstants.NODESET);
+			Node curResult = null;
+			//while ((curResult = results.iterateNext()) != null) {
+			int index = 0;
+			while (index < results.getLength()) {
+				curResult = results.item(index++);
+				lstResults.add(curResult);
+			}
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
 		}
-		Node arrNode[] = new Node[lstResults.size()];
+		Node[] arrNode = new Node[lstResults.size()];
 		lstResults.toArray(arrNode);
 		return arrNode;
-
 	}
 
 	/**
 	 * Gets the first Node found by the expression or returns a null.
-	 * 
+	 *
 	 * @param expression
 	 * @return
 	 */
@@ -479,8 +469,7 @@ public class XPathHelper {
 	 * Set the node from which the XPath expressions will be evaluated relative
 	 * to. After using this method use relative expressions i.e. don't precede
 	 * the expressions with a front slash.
-	 * 
-	 * 
+	 *
 	 * @param node
 	 */
 	public void setContextNode(Element node) {
@@ -490,7 +479,7 @@ public class XPathHelper {
 	/**
 	 * Gets the context node relative to which all XPath expressions are
 	 * evaluated.
-	 * 
+	 *
 	 * @return
 	 */
 	public Element getContextNode() {
@@ -500,10 +489,10 @@ public class XPathHelper {
 	/**
 	 * Gets the text value of an XML element. Example -
 	 * &lt;class&gt;com.documentum.web.formext.Component&lt;/class&gt;
-	 * 
+	 * <p>
 	 * would return the string 'com.documentum.web.formext.Component' for the
 	 * 'class' <code>Element</code>
-	 * 
+	 *
 	 * @param elem
 	 * @return value of element or an empty string if no value.
 	 */
@@ -525,7 +514,7 @@ public class XPathHelper {
 
 	/**
 	 * This is a utility method to set the text value of an element.
-	 * 
+	 *
 	 * @param elem
 	 * @param value
 	 */
@@ -554,7 +543,7 @@ public class XPathHelper {
 
 	/**
 	 * Checks if atleast one node referenced by the specified expression exists.
-	 * 
+	 *
 	 * @param expr
 	 * @return
 	 */

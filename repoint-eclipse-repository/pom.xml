@@ -13,15 +13,14 @@ Contributors:
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<version>1.0.0-SNAPSHOT</version>
 	<artifactId>eclipse-repository</artifactId>
 	<packaging>eclipse-repository</packaging>
 	<name>Repoint Product Repository</name>
 
 	<parent>
-		<version>1.0.0-SNAPSHOT</version>
 		<groupId>repoint</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>repoint-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<build>

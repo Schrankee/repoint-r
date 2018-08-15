@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+*******************************************************************************/
 
 /*
  * Created on Sep 24, 2005
@@ -45,7 +45,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class BOFTreeListener implements IDoubleClickListener {
-	private Shell shell = null;
+	private Shell shell;
 
 	BOFTreeListener(Shell sh) {
 		shell = sh;
@@ -56,7 +56,7 @@ public class BOFTreeListener implements IDoubleClickListener {
 		if (sel != null) {
 			Object obj = sel.getFirstElement();
 			String info = "";
-			if (PluginHelper.isDFC53() == false) {
+			if (!PluginHelper.isDFC53()) {
 				info = BOF52Formatter.prepareInfo(obj);
 			} else {
 				if (BOF53Helper.isGlobalRegistryAccessible()) {

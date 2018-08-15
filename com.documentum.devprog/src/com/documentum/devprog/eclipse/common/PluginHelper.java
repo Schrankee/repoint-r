@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- �*�
- �*******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Mar 11, 2005
@@ -79,10 +79,15 @@ import java.util.List;
 import java.util.PropertyResourceBundle;
 import java.util.Set;
 
-import org.apache.xml.serialize.DOMSerializer;
-import org.apache.xml.serialize.Method;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -120,12 +125,11 @@ public class PluginHelper {
 
 	private static ImageRegistry imageDescReg = new ImageRegistry();
 
-	private static DFCVersionParser dfcVersion = new DFCVersionParser(
-			DfClient.getDFCVersion());
+	//private static DFCVersionParser dfcVersion = new DFCVersionParser(DfClient.getDFCVersion());
 
 	public static List<String> getSortedDocbaseList() throws DfException {
-		return PluginState.getDocbases();
-/*
+		//return PluginState.getDocbases();
+
 		ArrayList<String> dbLst = new ArrayList<String>();
 
 		IDfClient localClient = DfClient.getLocalClient();
@@ -137,7 +141,6 @@ public class PluginHelper {
 		Collections.sort(dbLst);
 
 		return dbLst;
-*/
 	}
 
 	public static void showPropertiesView(String objectId) {
@@ -251,26 +254,29 @@ public class PluginHelper {
 	 * Serializes the specified element to a String object.
 	 *
 	 * @param node
-	 * @return
-	 * @throws ConfigException
+	 * @return serialized DOM
 	 */
 	public static String serializeDOMToString(Element node) {
 		try {
 			CharArrayWriter arrWriter = new CharArrayWriter();
-			OutputFormat xmlOutputFormat = new OutputFormat(Method.XML, null,
-					true);
-			// xmlOutputFormat.setOmitXMLDeclaration(true);
-			xmlOutputFormat.setIndenting(false);
-			xmlOutputFormat.setLineWidth(0);
-			XMLSerializer writer = new XMLSerializer(arrWriter, xmlOutputFormat);
-			DOMSerializer domSerializer = writer.asDOMSerializer();
-			domSerializer.serialize(node);
+			XMLOutputFactory.newInstance().createXMLStreamWriter(arrWriter);
+			TransformerFactory transFactory = TransformerFactory.newInstance();
+			Transformer transformer;
+
+			transformer = transFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+			transformer.setOutputProperty(OutputKeys.INDENT, "false");
+			transformer.transform(new DOMSource(node), new StreamResult(arrWriter));
 
 			return arrWriter.toString();
-		} catch (IOException ioe) {
-			return "";
+		} catch (TransformerConfigurationException tce) {
+			tce.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
 		}
-
+		return "";
 	}
 
 	public static GridData getGridData(int horizSpan) {
@@ -295,18 +301,14 @@ public class PluginHelper {
 	 * @return A java.util.LinkedList object that contains all subtype names as
 	 *         java.lang.String objects.
 	 */
-	public static String[] getAllSubtypes(IDfSession sess, String superType)
-			throws DfException {
+	public static String[] getAllSubtypes(IDfSession sess, String superType) throws DfException {
 		IDfCollection coll = null;
 		try {
 
-			StringBuffer bufQuery = new StringBuffer(32);
-			bufQuery.append(
-					"select r_type_name from dmi_type_info where ANY r_supertype IN ('")
-					.append(superType).append("')");
+			String bufQuery = "select r_type_name from dmi_type_info where ANY r_supertype IN ('" + superType + "')";
 
 			IDfQuery query = new DfQuery();
-			query.setDQL(bufQuery.toString());
+			query.setDQL(bufQuery);
 
 			LinkedList subTypeList = new LinkedList();
 
@@ -341,16 +343,14 @@ public class PluginHelper {
 	 * @return
 	 * @throws DfException
 	 */
-	public static String[] getAllFolderTypes(IDfSession sess, String superType,
-			boolean filterCabinets) throws DfException {
+	public static String[] getAllFolderTypes(IDfSession sess, String superType, boolean filterCabinets) throws DfException {
 		if (superType == null || superType.length() == 0) {
 			superType = "dm_folder";
 		}
 
 		HashSet cabs = null;
 		if (filterCabinets) {
-			cabs = new HashSet(Arrays.asList(PluginHelper.getAllSubtypes(sess,
-					"dm_cabinet")));
+			cabs = new HashSet(Arrays.asList(PluginHelper.getAllSubtypes(sess, "dm_cabinet")));
 
 		}
 
@@ -371,9 +371,9 @@ public class PluginHelper {
 			while (coll.next()) {
 				String strType = coll.getString("r_type_name");
 				if ((filterCabinets)) {
-					if (cabs.contains(strType) == false)
+					if (!cabs.contains(strType)) {
 						subTypeList.add(strType);
-
+					}
 				} else {
 					subTypeList.add(strType);
 				}
@@ -421,7 +421,7 @@ public class PluginHelper {
 	}
 
 	/**
-	 * Gets an image from the image registry
+	 * Gets an image from the image registry.
 	 *
 	 * @param path
 	 * @return
@@ -445,7 +445,7 @@ public class PluginHelper {
 	}
 
 	/**
-	 * Gets an image from the image registry
+	 * Gets an image from the image registry.
 	 *
 	 * @param path
 	 * @return
@@ -494,9 +494,8 @@ public class PluginHelper {
 		ImageDescriptor desc = imageDescReg.getDescriptor(path);
 		if (desc == null) {
 
-			StringBuffer bufPath = new StringBuffer(24);
-			bufPath.append(CommonConstants.ICONS_FOLDER).append(path);
-			IPath ipath = new Path(bufPath.toString());
+			String bufPath = CommonConstants.ICONS_FOLDER + path;
+			IPath ipath = new Path(bufPath);
 
 			Bundle bndl = Platform.getBundle(DevprogPlugin.PLUGIN_ID);
 			URL url = Platform.find(bndl, ipath);
@@ -617,7 +616,8 @@ public class PluginHelper {
 	 * @return
 	 */
 	public static boolean isDFC53() {
-		return ((dfcVersion.getMajor()) == 5 && (dfcVersion.getMinor() == 3));
+		//return ((dfcVersion.getMajor()) == 5 && (dfcVersion.getMinor() == 3));
+		return false;
 	}
 
 	/**

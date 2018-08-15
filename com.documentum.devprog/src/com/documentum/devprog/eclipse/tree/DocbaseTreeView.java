@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- �*�
- �*******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Feb 27, 2004
@@ -37,12 +37,29 @@
 package com.documentum.devprog.eclipse.tree;
 
 import com.documentum.devprog.eclipse.DevprogPlugin;
-import com.documentum.devprog.eclipse.common.*;
+import com.documentum.devprog.eclipse.common.BlowfishJC;
+import com.documentum.devprog.eclipse.common.DocbaseListDialog;
+import com.documentum.devprog.eclipse.common.DocbaseLoginDialog;
+import com.documentum.devprog.eclipse.common.PluginHelper;
+import com.documentum.devprog.eclipse.common.PluginState;
+import com.documentum.devprog.eclipse.common.SimpleTextDialog;
 import com.documentum.devprog.eclipse.model.DocbaseInfo;
 import com.documentum.fc.client.DfClient;
 import com.documentum.fc.common.DfLogger;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jface.action.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -51,7 +68,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
@@ -68,7 +90,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * 
@@ -76,61 +106,37 @@ import java.util.*;
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
 public class DocbaseTreeView extends ViewPart {
-
-	TreeViewer treeViewer = null;
-
-	DocbaseItem rootNode = null;
-
-	Action showOnlyDocuments = null;
-
-	Action showOnlyVDocs = null;
-
-	Action refreshNode = null;
-
-	Action showLoginDialog = null;
-
-	Action addDocbase = null;
-
-	Action removeDocbase = null;
-
-	DumpPropertiesAction dumpProperties = null;
-
-	Action encodeURL = null;
-
-	ArrayList repoExtensions = null;
-
-	DmDocumentFilter docFilter = null;
-
-	String docFilterKey = "docFilter";
-
-	VirtualDocumentFilter vDocFilter = null;
-
-	String vdocFilterKey = "vdocFilter";
-
-	MenuManager contextMenu = null;
-
-	Composite parent = null;
-
-	HashMap rootDocbaseNodes = new HashMap();
-
-	Action showDFCInfo = null;
-
-	private static Map objIdToNodeMap = new HashMap();
-
+	private TreeViewer treeViewer = null;
+	private DocbaseItem rootNode = null;
+	private Action showOnlyDocuments = null;
+	private Action showOnlyVDocs = null;
+	private Action refreshNode = null;
+	private Action showLoginDialog = null;
+	private Action addDocbase = null;
+	private Action removeDocbase = null;
+	private DumpPropertiesAction dumpProperties = null;
+	private Action encodeURL = null;
+	private ArrayList<RepoTreeExtension> repoExtensions = null;
+	private DmDocumentFilter docFilter = null;
+	private String docFilterKey = "docFilter";
+	private VirtualDocumentFilter vDocFilter = null;
+	private String vdocFilterKey = "vdocFilter";
+	private MenuManager contextMenu = null;
+	private Composite parent = null;
+	private HashMap<String, DocbaseItem> rootDocbaseNodes = new HashMap<String, DocbaseItem>();
+	private Action showDFCInfo = null;
+	private static Map<String, Set> objIdToNodeMap = new HashMap<String, Set>();
 	private static final String DOCBASE_NAMES_KEY = "DOCBASE_NAMES_KEY";
-
 	private IMemento memento = null;
 
 	// ///////////////
 	// Stack view support
-	Composite treeStack = null;
-
-	StackLayout treeStackLayout = null;
+	private Composite treeStack = null;
+	private StackLayout treeStackLayout = null;
 
 	// Mapping from docbaseName=>TreeViewer used to display tree.
-	HashMap treeViewers = null;
-
-	HashMap showTreeActions = null;
+	private HashMap treeViewers = null;
+	private HashMap showTreeActions = null;
 
 	// //END Stack View support
 	// ///////////////////////////
@@ -159,8 +165,7 @@ public class DocbaseTreeView extends ViewPart {
 		treeViewer = new TreeViewer(parent);
 
 		Shell sh = parent.getShell();
-		ITreeContentProvider contentProvider = new DocbaseTreeContentProvider(
-				null, "");
+		ITreeContentProvider contentProvider = new DocbaseTreeContentProvider(null, "");
 		treeViewer.setContentProvider(contentProvider);
 		treeViewer.setLabelProvider(new DocbaseTreeLabelProvider());
 		treeViewer.setSorter(new DocbaseTreeSorter());
@@ -183,7 +188,7 @@ public class DocbaseTreeView extends ViewPart {
 
 		this.restoreDocbaseNames(memento);
 
-		// experimeting Dnd. Does not work as yet.
+		// experimenting Dnd. Does not work as yet.
 		createDropTarget();
 	}
 
@@ -270,15 +275,14 @@ public class DocbaseTreeView extends ViewPart {
 				IStructuredSelection selection = (IStructuredSelection) curViewer
 						.getSelection();
 
-				if (selection.isEmpty() == false) {
+				if (!selection.isEmpty()) {
 					// System.out.println("requesting refresh of " +
 					// selection.getFirstElement().getClass());
 					curViewer.refresh(selection.getFirstElement());
 				}
 			}
 		};
-		refreshNode
-				.setImageDescriptor(PluginHelper.getImageDesc("refresh.gif"));
+		refreshNode.setImageDescriptor(PluginHelper.getImageDesc("refresh.gif"));
 
 		showLoginDialog = new Action("Login / Change Login") {
 			public void run() {
@@ -291,7 +295,7 @@ public class DocbaseTreeView extends ViewPart {
 				IStructuredSelection selection = (IStructuredSelection) curViewer
 						.getSelection();
 
-				if (selection.isEmpty() == false) {
+				if (!selection.isEmpty()) {
 					// System.out.println("requesting refresh of " +
 					// selection.getFirstElement().getClass());
 					DocbaseItem data = (DocbaseItem) selection
@@ -327,10 +331,8 @@ public class DocbaseTreeView extends ViewPart {
 				}
 			}
 		};
-		addDocbase
-				.setImageDescriptor(PluginHelper.getImageDesc("add_repo.gif"));
-		addDocbase
-				.setToolTipText("Select and Add a Repository to the Tree View");
+		addDocbase.setImageDescriptor(PluginHelper.getImageDesc("add_repo.gif"));
+		addDocbase.setToolTipText("Select and Add a Repository to the Tree View");
 
 		removeDocbase = new Action("Remove Repo") {
 			public void run() {
@@ -350,10 +352,8 @@ public class DocbaseTreeView extends ViewPart {
 				}
 			}
 		};
-		removeDocbase.setImageDescriptor(PluginHelper
-				.getImageDesc("remove_repo.gif"));
-		removeDocbase
-				.setToolTipText("Remove Selected Repository from the Tree");
+		removeDocbase.setImageDescriptor(PluginHelper.getImageDesc("remove_repo.gif"));
+		removeDocbase.setToolTipText("Remove Selected Repository from the Tree");
 
 		showDFCInfo = new Action("Information") {
 			public void run() {
@@ -363,19 +363,16 @@ public class DocbaseTreeView extends ViewPart {
 					String version = DfClient.getDFCVersion();
 					bufInfo.append("\nDFC Version: ").append(version);
 
-					String location = DfClient.class.getProtectionDomain()
-							.getCodeSource().getLocation().toExternalForm();
+					String location = DfClient.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm();
 					bufInfo.append("\n\nDFC JAR Location: ").append(location);
 
 					bufInfo.append("\n\nDFC Properties");
-					PropertyResourceBundle bndl = (PropertyResourceBundle) ResourceBundle
-							.getBundle("dfc");
+					PropertyResourceBundle bndl = (PropertyResourceBundle) ResourceBundle.getBundle("dfc");
 					Enumeration keys = bndl.getKeys();
 					while (keys.hasMoreElements()) {
 						String key = (String) keys.nextElement();
 						String val = bndl.getString(key);
-						bufInfo.append("\n").append(key).append("=")
-								.append(val);
+						bufInfo.append("\n").append(key).append("=").append(val);
 					}
 
 					SimpleTextDialog std = new SimpleTextDialog(
@@ -393,21 +390,16 @@ public class DocbaseTreeView extends ViewPart {
 
 		encodeURL = new Action("Encode URL") {
 			public void run() {
-				InputDialog id = new InputDialog(DocbaseTreeView.this.getSite()
-						.getShell(), "URL Encoder",
+				InputDialog id = new InputDialog(DocbaseTreeView.this.getSite().getShell(), "URL Encoder",
 						"Please Enter URL to be Encoded", null, null);
-				int status = id.open();
-				if (status == InputDialog.OK) {
+				if (id.open() == InputDialog.OK) {
 					try {
 						String url = id.getValue();
 						url = URLEncoder.encode(url, "UTF-8");
-						InputDialog idRes = new InputDialog(
-								DocbaseTreeView.this.getSite().getShell(),
-								"URL Encoder", "Encoded URL", url, null);
+						InputDialog idRes = new InputDialog(DocbaseTreeView.this.getSite().getShell(), "URL Encoder", "Encoded URL", url, null);
 						idRes.open();
 					} catch (Exception ex) {
-						MessageDialog.openError(DocbaseTreeView.this.getSite()
-								.getShell(), "Error", ex.getMessage());
+						MessageDialog.openError(DocbaseTreeView.this.getSite().getShell(), "Error", ex.getMessage());
 					}
 				}
 			}
@@ -430,9 +422,9 @@ public class DocbaseTreeView extends ViewPart {
 	}
 
 	/**
-	 * Create the context(popup) menu
+	 * Create the context(popup) menu.
 	 * 
-	 * @param viewer
+	 * @param viewer treeViewer
 	 */
 	protected void createPopupMenu(TreeViewer viewer) {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -464,30 +456,26 @@ public class DocbaseTreeView extends ViewPart {
 				menuMgr.add(showLoginDialog);
 				menuMgr.add(removeDocbase);
 			}
-
-		}// if(!null)
+		}
 
 		// Fill in the extension actions
 		menuMgr.add(new Separator(DocbaseTreeView.TREE_EXT_ACTIONS));
-		for (int i = 0; i < repoExtensions.size(); i++) {
-			RepoTreeExtension act = (RepoTreeExtension) repoExtensions.get(i);
-			act.setDocbaseItem(selNode);
-			if (act.showAction()) {
-				menuMgr.add(act);
+		for (RepoTreeExtension repoExtension : repoExtensions) {
+			repoExtension.setDocbaseItem(selNode);
+			if (repoExtension.showAction()) {
+				menuMgr.add(repoExtension);
 			}
 		}
-
-		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS
-				+ "-end"));
+		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS + "-end"));
 	}
 
 	/**
-	 * Add a docbase to the view
+	 * Add a docbase to the view.
 	 * 
-	 * @param docbase
+	 * @param docbase documentum base name
 	 */
 	public void addDocbase(String docbase) {
-		if (rootDocbaseNodes.containsKey(docbase) == false) {
+		if (!rootDocbaseNodes.containsKey(docbase)) {
 			DocbaseItem ti = new DocbaseItem();
 			ti.setType(DocbaseItem.DOCBASE_TYPE);
 			ti.setData(docbase);
@@ -502,35 +490,33 @@ public class DocbaseTreeView extends ViewPart {
 	 * Remove a docbase from the view. Note that this does not destroy the
 	 * docbase session.
 	 * 
-	 * @param docbase
+	 * @param docbase documentum base name
 	 */
 	public void removeDocbase(String docbase) {
 		if (rootDocbaseNodes.containsKey(docbase)) {
-			DocbaseItem ti = (DocbaseItem) rootDocbaseNodes.get(docbase);
+			DocbaseItem ti = rootDocbaseNodes.get(docbase);
 			treeViewer.remove(ti);
 			rootDocbaseNodes.remove(docbase);
 		}
 	}
 
 	private void addDocbasesAgain() {
-		Iterator iterNodes = rootDocbaseNodes.values().iterator();
-		while (iterNodes.hasNext()) {
-			treeViewer.add(rootNode, iterNodes.next());
+		for (Object o : rootDocbaseNodes.values()) {
+			treeViewer.add(rootNode, o);
 		}
 	}
 
 	protected DocbaseItem getSelectedNode() {
 		IStructuredSelection sel = (IStructuredSelection) treeViewer
 				.getSelection();
-		if (sel.isEmpty() == false) {
-			DocbaseItem dtd = (DocbaseItem) sel.getFirstElement();
-			return dtd;
+		if (!sel.isEmpty()) {
+			return (DocbaseItem) sel.getFirstElement();
 		}
 		return null;
 	}
 
 	/**
-	 * Finds extensions to the tree view
+	 * Finds extensions to the tree view.
 	 * 
 	 */
 	protected void findExtensions() {
@@ -538,15 +524,13 @@ public class DocbaseTreeView extends ViewPart {
 		IExtensionPoint ep = reg
 				.getExtensionPoint(DevprogPlugin.REPO_TREE_EXT_ID);
 		IExtension[] extensions = ep.getExtensions();
-		repoExtensions = new ArrayList();
-		for (int i = 0; i < extensions.length; i++) {
-			IExtension ext = extensions[i];
+		repoExtensions = new ArrayList<RepoTreeExtension>();
+		for (IExtension ext : extensions) {
 			IConfigurationElement[] ce = ext.getConfigurationElements();
-			for (int j = 0; j < ce.length; j++) {
+			for (IConfigurationElement aCe : ce) {
 				try {
-					RepoTreeExtension obj = (RepoTreeExtension) ce[j]
-							.createExecutableExtension("class");
-					String label = ce[j].getAttribute("label");
+					RepoTreeExtension obj = (RepoTreeExtension) aCe.createExecutableExtension("class");
+					String label = aCe.getAttribute("label");
 					obj.setText(label);
 					obj.setRepoTreeViewer(treeViewer);
 					// obj.setObjectListViewer((TableViewer)PluginHelper.getObjectListViewer());
@@ -567,15 +551,13 @@ public class DocbaseTreeView extends ViewPart {
 
 	protected void createDropTarget() {
 		int operations = DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK;
-		Transfer types[] = new Transfer[] { TextTransfer.getInstance() };
+		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
 		DropTarget dt = new DropTarget(treeViewer.getTree(), operations);
 		dt.setTransfer(types);
 		dt.addDropListener(new DropTargetAdapter() {
 			public void dragOver(DropTargetEvent event) {
-				System.out.println("Droptargetevent:  "
-						+ event.currentDataType.toString());
-				event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL
-						| DND.FEEDBACK_SELECT;
+				System.out.println("Droptargetevent:  "	+ event.currentDataType.toString());
+				event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
 			}
 
 			public void drop(DropTargetEvent event) {
@@ -592,7 +574,7 @@ public class DocbaseTreeView extends ViewPart {
 	}
 
 	public static void putNode(String objId, DocbaseItem treeNode) {
-		Set vals = (Set) objIdToNodeMap.get(objId);
+		Set vals = objIdToNodeMap.get(objId);
 		if (vals == null) {
 			vals = new HashSet();
 			objIdToNodeMap.put(objId, vals);
