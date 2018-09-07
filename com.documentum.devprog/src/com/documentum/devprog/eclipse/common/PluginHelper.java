@@ -88,6 +88,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -113,9 +114,6 @@ import com.documentum.com.IDfClientX;
 import com.documentum.operations.IDfOperationError;
 
 /**
- *
- *
- *
  * @author Aashish Patil(patil_aashish@emc.com)
  */
 public class PluginHelper {
@@ -148,8 +146,7 @@ public class PluginHelper {
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			PropertiesView viewPart = (PropertiesView) actPage
-					.showView(DevprogPlugin.PROP_VIEW_ID);
+			PropertiesView viewPart = (PropertiesView) actPage.showView(DevprogPlugin.PROP_VIEW_ID);
 			viewPart.setObjectId(objectId);
 			viewPart.showPropertiesTable();
 		} catch (Exception ex) {
@@ -162,8 +159,7 @@ public class PluginHelper {
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			PropertiesView viewPart = (PropertiesView) actPage
-					.showView(DevprogPlugin.PROP_VIEW_ID);
+			PropertiesView viewPart = (PropertiesView) actPage.showView(DevprogPlugin.PROP_VIEW_ID);
 			viewPart.showTypeProperties(typeName);
 		} catch (Exception ex) {
 			DfLogger.warn(logId, "Error showing properties view", null, ex);
@@ -175,8 +171,7 @@ public class PluginHelper {
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			QueryView viewPart = (QueryView) actPage
-					.showView(DevprogPlugin.QUERY_VIEW_ID);
+			QueryView viewPart = (QueryView) actPage.showView(DevprogPlugin.QUERY_VIEW_ID);
 			if (queryStr != null && queryStr.length() > 0) {
 				viewPart.setQueryString(queryStr);
 			}
@@ -185,18 +180,15 @@ public class PluginHelper {
 		}
 	}
 
-	public static void showQuickTypeHierarchy(String typeName, String docbase,
-			boolean showAncestors) {
+	public static void showQuickTypeHierarchy(String typeName, String docbase, boolean showAncestors) {
 		try {
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			QuickTypeHierarchyView viewPart = (QuickTypeHierarchyView) actPage
-					.showView(DevprogPlugin.QUICK_TYPE_HIERARCHY_VIEW_ID);
+			QuickTypeHierarchyView viewPart = (QuickTypeHierarchyView) actPage.showView(DevprogPlugin.QUICK_TYPE_HIERARCHY_VIEW_ID);
 			viewPart.showHierarchy(typeName, docbase, showAncestors);
 		} catch (Exception ex) {
-			DfLogger.warn(logId, "Error showing quick type hierarchy view",
-					null, ex);
+			DfLogger.warn(logId, "Error showing quick type hierarchy view", null, ex);
 		}
 	}
 
@@ -205,8 +197,7 @@ public class PluginHelper {
 			IWorkbench wkBench = PlatformUI.getWorkbench();
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
-			TraceEntryView viewPart = (TraceEntryView) actPage
-					.showView(TraceEntryView.TRACE_ENTRY_VIEW_ID);
+			TraceEntryView viewPart = (TraceEntryView) actPage.showView(TraceEntryView.TRACE_ENTRY_VIEW_ID);
 
 			if (te != null) {
 				viewPart.setDFCTraceEntry(te);
@@ -226,8 +217,7 @@ public class PluginHelper {
 	/**
 	 * Gets the URL to a file within the plugin folder.
 	 *
-	 * @param relPath
-	 *            path should not start with a '/'
+	 * @param relPath path should not start with a '/'
 	 * @return
 	 */
 	public static URL getPluginFile(String relPath) {
@@ -239,10 +229,8 @@ public class PluginHelper {
 	 * Gets the URL to a file within the plugin folder, within a specified
 	 * plugin
 	 *
-	 * @param pluginId
-	 *            The plugin relative to which the path is specified.
-	 * @param relPath
-	 *            path should not start with a '/'
+	 * @param pluginId The plugin relative to which the path is specified.
+	 * @param relPath  path should not start with a '/'
 	 * @return
 	 */
 	public static URL getPluginFile(String pluginId, String relPath) {
@@ -294,12 +282,10 @@ public class PluginHelper {
 	 * supertype. To put it another way, it returns all the subtypes of a
 	 * particular type.
 	 *
-	 * @param sess
-	 *            The docbase session to use
-	 * @param superType
-	 *            The supertype whose subtypes are needed.
+	 * @param sess      The docbase session to use
+	 * @param superType The supertype whose subtypes are needed.
 	 * @return A java.util.LinkedList object that contains all subtype names as
-	 *         java.lang.String objects.
+	 * java.lang.String objects.
 	 */
 	public static String[] getAllSubtypes(IDfSession sess, String superType) throws DfException {
 		IDfCollection coll = null;
@@ -334,12 +320,10 @@ public class PluginHelper {
 	 * flag tells whether to include dm_cabinet and its subtypes or not.
 	 *
 	 * @param sess
-	 * @param superType
-	 *            dm_folder or a subtype of dm_folder. If null dm_folder is
-	 *            assumed.
-	 * @param filterCabinets
-	 *            true=>don't include cabinets or its subtypes. false=>include
-	 *            cabinets and its subtypes.
+	 * @param superType      dm_folder or a subtype of dm_folder. If null dm_folder is
+	 *                       assumed.
+	 * @param filterCabinets true=>don't include cabinets or its subtypes. false=>include
+	 *                       cabinets and its subtypes.
 	 * @return
 	 * @throws DfException
 	 */
@@ -358,9 +342,7 @@ public class PluginHelper {
 		try {
 
 			StringBuffer bufQuery = new StringBuffer(32);
-			bufQuery.append(
-					"select r_type_name from dmi_type_info where ANY r_supertype IN ('")
-					.append(superType).append("')");
+			bufQuery.append("select r_type_name from dmi_type_info where ANY r_supertype IN ('").append(superType).append("')");
 
 			IDfQuery query = new DfQuery();
 			query.setDQL(bufQuery.toString());
@@ -394,8 +376,7 @@ public class PluginHelper {
 	 * Gets an array of all the format names defined in a repo. The array
 	 * contains the value of the 'name' attribute of dm_format
 	 *
-	 * @param sess
-	 *            repoSession
+	 * @param sess repoSession
 	 * @return list of formats.
 	 * @throws DfException
 	 */
@@ -578,8 +559,7 @@ public class PluginHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String[] getAllContainingFolderPaths(IDfSysObject sObj)
-			throws Exception {
+	public static String[] getAllContainingFolderPaths(IDfSysObject sObj) throws Exception {
 		int fldrCnt = sObj.getFolderIdCount();
 		ArrayList pathList = new ArrayList();
 		for (int i = 0; i < fldrCnt; i++) {
@@ -642,11 +622,8 @@ public class PluginHelper {
 	 * Prints the errors generated by IDfOperation. Errors are generated if
 	 * IDfOperation.execute() returns false;
 	 *
-	 * @param out
-	 *            The output stream to which the error messages are printed.
-	 * @param errorList
-	 *            The error list geenrated by the operation.
-	 *
+	 * @param out       The output stream to which the error messages are printed.
+	 * @param errorList The error list geenrated by the operation.
 	 */
 	public static void printOperationErrors(OutputStream out, IDfList errorList) {
 
@@ -654,8 +631,7 @@ public class PluginHelper {
 			String beginMessage = "\n--Printing Operation Error List--\n";
 			out.write(beginMessage.getBytes());
 			for (int errorIndex = 0; errorIndex < errorList.getCount(); errorIndex++) {
-				IDfOperationError error = (IDfOperationError) errorList
-						.get(errorIndex);
+				IDfOperationError error = (IDfOperationError) errorList.get(errorIndex);
 
 				String strErrMsg = error.getMessage();
 				out.write(strErrMsg.getBytes());
@@ -679,8 +655,7 @@ public class PluginHelper {
 		try {
 			for (int i = 0; i < errList.getCount(); i++) {
 				IDfOperationError err = (IDfOperationError) errList.get(i);
-				bufErr.append(err.getErrorCode() + "," + err.getMessage() + ","
-						+ err.getException());
+				bufErr.append(err.getErrorCode() + "," + err.getMessage() + "," + err.getException());
 				bufErr.append(nl);
 			}
 		} catch (Exception ex) {
@@ -701,32 +676,32 @@ public class PluginHelper {
 	 */
 	public static String getTypeNameFromId(IDfId objectId) throws DfException {
 		switch (objectId.getTypePart()) {
-		case IDfId.DM_ACL:
-			return "dm_acl";
-		case IDfId.DM_CABINET:
-			return "dm_cabinet";
-		case IDfId.DM_DOCUMENT:
-			return "dm_document";
-		case IDfId.DM_FOLDER:
-			return "dm_folder";
-		case IDfId.DM_FORMAT:
-			return "dm_format";
-		case IDfId.DM_METHOD:
-			return "dm_method";
-		case IDfId.DM_POLICY:
-			return "dm_policy";
-		case IDfId.DM_PROCESS:
-			return "dm_process";
-		case IDfId.DM_RELATION:
-			return "dm_relation";
-		case IDfId.DM_RELATIONTYPE:
-			return "dm_relation_type";
-		case IDfId.DM_USER:
-			return "dm_user";
-		case IDfId.DM_WORKFLOW:
-			return "dm_workflow";
-		default:
-			return "";
+			case IDfId.DM_ACL:
+				return "dm_acl";
+			case IDfId.DM_CABINET:
+				return "dm_cabinet";
+			case IDfId.DM_DOCUMENT:
+				return "dm_document";
+			case IDfId.DM_FOLDER:
+				return "dm_folder";
+			case IDfId.DM_FORMAT:
+				return "dm_format";
+			case IDfId.DM_METHOD:
+				return "dm_method";
+			case IDfId.DM_POLICY:
+				return "dm_policy";
+			case IDfId.DM_PROCESS:
+				return "dm_process";
+			case IDfId.DM_RELATION:
+				return "dm_relation";
+			case IDfId.DM_RELATIONTYPE:
+				return "dm_relation_type";
+			case IDfId.DM_USER:
+				return "dm_user";
+			case IDfId.DM_WORKFLOW:
+				return "dm_workflow";
+			default:
+				return "";
 		}
 	}
 
@@ -741,16 +716,14 @@ public class PluginHelper {
 	 * @return
 	 * @throws DfException
 	 */
-	public static IDfTypedObject convertToTypedObject(IDfSession sess,
-			String attrList, IDfPersistentObject pObj) throws DfException {
+	public static IDfTypedObject convertToTypedObject(IDfSession sess, String attrList, IDfPersistentObject pObj) throws DfException {
 		IDfClientX cx = PluginState.getClientX();
 		IDfQuery queryObj = cx.getQuery();
 
 		StringBuffer bufQuery = new StringBuffer(24);
 		bufQuery.append("select ").append(attrList);
 		bufQuery.append(" from ").append(pObj.getType().getName());
-		bufQuery.append(" where r_object_id='").append(
-				pObj.getString("r_object_id"));
+		bufQuery.append(" where r_object_id='").append(pObj.getString("r_object_id"));
 		bufQuery.append("'");
 		String strQuery = bufQuery.toString();
 		queryObj.setDQL(strQuery);
@@ -778,8 +751,7 @@ public class PluginHelper {
 	 */
 	public static boolean hasDFCProperty(String property) {
 		try {
-			PropertyResourceBundle bndl = (PropertyResourceBundle) PropertyResourceBundle
-					.getBundle("dfc");
+			PropertyResourceBundle bndl = (PropertyResourceBundle) PropertyResourceBundle.getBundle("dfc");
 			String val = bndl.getString(property);
 			return (val != null);
 		} catch (Exception ex) {
@@ -802,8 +774,7 @@ public class PluginHelper {
 
 			System.out.println("selObj class: " + selObj.getClass());
 			DocbaseItem di = (DocbaseItem) selObj;
-			System.out.println("isDI: " + di.isCabinetType() + ","
-					+ di.isFolderType());
+			System.out.println("isDI: " + di.isCabinetType() + "," + di.isFolderType());
 			if (di.isCabinetType() || di.isFolderType()) {
 				IWorkbench wkBench = PlatformUI.getWorkbench();
 				IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
@@ -812,15 +783,13 @@ public class PluginHelper {
 				IDfTypedObject tObj = (IDfTypedObject) di.getData();
 				String objId = tObj.getString("r_object_id");
 				System.out.println("objId: " + objId);
-				DocbaseItemListView listView = (DocbaseItemListView) actPage
-						.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
+				DocbaseItemListView listView = (DocbaseItemListView) actPage.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
 				System.out.println("listView: " + listView);
 				listView.showFolderContents(objId, true);
 			}
 
 		} catch (Exception ex) {
-			DfLogger.error(PluginHelper.logId, "Error showing folder contents",
-					null, ex);
+			DfLogger.error(PluginHelper.logId, "Error showing folder contents", null, ex);
 		}
 
 	}
@@ -831,14 +800,12 @@ public class PluginHelper {
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
 
-			DocbaseItemListView listView = (DocbaseItemListView) actPage
-					.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
+			DocbaseItemListView listView = (DocbaseItemListView) actPage.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
 			System.out.println("listView: " + listView);
 			listView.showFolderContents(folderId, true);
 
 		} catch (Exception ex) {
-			DfLogger.error(PluginHelper.logId, "Error showing folder contents",
-					null, ex);
+			DfLogger.error(PluginHelper.logId, "Error showing folder contents", null, ex);
 		}
 	}
 
@@ -848,14 +815,12 @@ public class PluginHelper {
 			IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 			IWorkbenchPage actPage = actWin.getActivePage();
 
-			DocbaseItemListView listView = (DocbaseItemListView) actPage
-					.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
+			DocbaseItemListView listView = (DocbaseItemListView) actPage.showView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
 			System.out.println("listView: " + listView);
 			listView.showFolderContents(folderId, selectionId, true);
 
 		} catch (Exception ex) {
-			DfLogger.error(PluginHelper.logId, "Error showing folder contents",
-					null, ex);
+			DfLogger.error(PluginHelper.logId, "Error showing folder contents", null, ex);
 		}
 	}
 
@@ -868,8 +833,7 @@ public class PluginHelper {
 		IWorkbench wkBench = PlatformUI.getWorkbench();
 		IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 		IWorkbenchPage actPage = actWin.getActivePage();
-		DocbaseTreeView dtv = (DocbaseTreeView) actPage
-				.findView(DevprogPlugin.TREE_VIEW_ID);
+		DocbaseTreeView dtv = (DocbaseTreeView) actPage.findView(DevprogPlugin.TREE_VIEW_ID);
 		return dtv.getCurrentTreeViewer();
 	}
 
@@ -882,8 +846,7 @@ public class PluginHelper {
 		IWorkbench wkBench = PlatformUI.getWorkbench();
 		IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 		IWorkbenchPage actPage = actWin.getActivePage();
-		DocbaseTreeView dtv = (DocbaseTreeView) actPage
-				.findView(DevprogPlugin.TREE_VIEW_ID);
+		DocbaseTreeView dtv = (DocbaseTreeView) actPage.findView(DevprogPlugin.TREE_VIEW_ID);
 		return dtv;
 	}
 
@@ -896,39 +859,36 @@ public class PluginHelper {
 		IWorkbench wkBench = PlatformUI.getWorkbench();
 		IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 		IWorkbenchPage actPage = actWin.getActivePage();
-		DocbaseItemListView di = (DocbaseItemListView) actPage
-				.findView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
+		DocbaseItemListView di = (DocbaseItemListView) actPage.findView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
 		return di.getObjectListViewer();
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	public static DocbaseItemListView getObjectListView() {
 		IWorkbench wkBench = PlatformUI.getWorkbench();
 		IWorkbenchWindow actWin = wkBench.getActiveWorkbenchWindow();
 		IWorkbenchPage actPage = actWin.getActivePage();
-		DocbaseItemListView di = (DocbaseItemListView) actPage
-				.findView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
+		DocbaseItemListView di = (DocbaseItemListView) actPage.findView(DevprogPlugin.DOCBASE_ITEM_LIST_VIEW_ID);
 		return di;
 	}
 
 	public static List<String> getDocbrokerDocbases(String docbroker) {
 		List<String> dbList = new ArrayList<String>();
 		try {
-    		IDfClient localClient;
+			IDfClient localClient;
 			localClient = DfClient.getLocalClient();
-            IDfTypedObject config = localClient.getClientConfig();
-            config.setString("primary_host", docbroker);
-            config.setInt("primary_port", 1489);
+			IDfTypedObject config = localClient.getClientConfig();
+			config.setString("primary_host", docbroker);
+			config.setInt("primary_port", 1489);
 
-            IDfDocbaseMap dmap = localClient.getDocbaseMap();
-            for (int i = 0; i < dmap.getDocbaseCount(); i++) {
-                String name = dmap.getDocbaseName(i);
-                dbList.add(name);
-            }
-            Collections.sort(dbList);
+			IDfDocbaseMap dmap = localClient.getDocbaseMap();
+			for (int i = 0; i < dmap.getDocbaseCount(); i++) {
+				String name = dmap.getDocbaseName(i);
+				dbList.add(name);
+			}
+			Collections.sort(dbList);
 		} catch (DfException e) {
 			e.printStackTrace();
 		}

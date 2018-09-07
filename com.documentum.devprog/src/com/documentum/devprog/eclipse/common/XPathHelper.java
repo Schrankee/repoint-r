@@ -37,7 +37,6 @@
 package com.documentum.devprog.eclipse.common;
 
 import com.documentum.fc.common.DfLogger;
-import com.documentum.services.config.ConfigException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -147,7 +146,7 @@ public class XPathHelper {
 	private void initDOMParser() {
 		javax.xml.parsers.DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
 		try {
-			DocumentBuilder docBuilder  = dfactory.newDocumentBuilder();
+			DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			DfLogger.debug(this, "", null, e);
 		}
@@ -356,7 +355,7 @@ public class XPathHelper {
 	 * Sets up an xpath helper with the specified node as the root node. All
 	 *
 	 * @param rootNode
-	 * @throws ConfigException
+	 * @throws Exception
 	 */
 	public XPathHelper(Element rootNode) throws Exception {
 		if (rootNode == null) {
@@ -406,7 +405,7 @@ public class XPathHelper {
 	 */
 	private void setupXPathParams() {
 		XPathFactory xfac = XPathFactory.newInstance();
-		XPath xpath  = xfac.newXPath();
+		XPath xpath = xfac.newXPath();
 		//xpath.evaluate("", m_contextNode, XPathConstants.NODESET);
 		//NamespaceContext nsContext =  null;
 		//m_contextNode.getOwnerDocument().getNamespaceURI();

@@ -1,37 +1,37 @@
 /* ******************************************************************************
- * Copyright (c) 2005-2006, EMC Corporation 
+ * Copyright (c) 2005-2006, EMC Corporation
  * All rights reserved.
 
- * Redistribution and use in source and binary forms, 
- * with or without modification, are permitted provided that 
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided that
  * the following conditions are met:
  *
- * - Redistributions of source code must retain the above copyright 
+ * - Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  * - Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * - Neither the name of the EMC Corporation nor the names of its 
+ * - Neither the name of the EMC Corporation nor the names of its
  *   contributors may be used to endorse or promote products derived from
  *   this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************/
 
 /*
  * Created on Feb 27, 2004
- * 
+ *
  * Documentum Developer Program 2004
  */
 package com.documentum.devprog.eclipse.tree;
@@ -52,7 +52,6 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -62,6 +61,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -101,8 +101,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 /**
- * 
- * 
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
 public class DocbaseTreeView extends ViewPart {
@@ -145,7 +143,7 @@ public class DocbaseTreeView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets
 	 * .Composite)
@@ -194,7 +192,7 @@ public class DocbaseTreeView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
@@ -205,7 +203,7 @@ public class DocbaseTreeView extends ViewPart {
 		IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
 		/*
 		 * IMenuManager filterMgr = new MenuManager("Tree Filters");
-		 * 
+		 *
 		 * menuMgr.add(filterMgr); filterMgr.add(showOnlyDocuments);
 		 * filterMgr.add(showOnlyVDocs);
 		 */
@@ -216,11 +214,9 @@ public class DocbaseTreeView extends ViewPart {
 
 	/**
 	 * Create the toolbar for the view.
-	 * 
 	 */
 	protected void createToolbar() {
-		IToolBarManager tbMgr = getViewSite().getActionBars()
-				.getToolBarManager();
+		IToolBarManager tbMgr = getViewSite().getActionBars().getToolBarManager();
 		tbMgr.add(addDocbase);
 		tbMgr.add(removeDocbase);
 		tbMgr.add(showDFCInfo);
@@ -272,8 +268,7 @@ public class DocbaseTreeView extends ViewPart {
 				}
 				// System.out.println("refresh node called");
 
-				IStructuredSelection selection = (IStructuredSelection) curViewer
-						.getSelection();
+				IStructuredSelection selection = (IStructuredSelection) curViewer.getSelection();
 
 				if (!selection.isEmpty()) {
 					// System.out.println("requesting refresh of " +
@@ -292,17 +287,14 @@ public class DocbaseTreeView extends ViewPart {
 					return;
 				}
 
-				IStructuredSelection selection = (IStructuredSelection) curViewer
-						.getSelection();
+				IStructuredSelection selection = (IStructuredSelection) curViewer.getSelection();
 
 				if (!selection.isEmpty()) {
 					// System.out.println("requesting refresh of " +
 					// selection.getFirstElement().getClass());
-					DocbaseItem data = (DocbaseItem) selection
-							.getFirstElement();
+					DocbaseItem data = (DocbaseItem) selection.getFirstElement();
 					if (data.getType().equals(DocbaseItem.DOCBASE_TYPE)) {
-						DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(
-								getSite().getShell());
+						DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(getSite().getShell());
 						loginDlg.setDocbaseName((String) data.getData());
 						int code = loginDlg.open();
 						if (code == DocbaseLoginDialog.OK) {
@@ -319,8 +311,7 @@ public class DocbaseTreeView extends ViewPart {
 		addDocbase = new Action("Add Repo") {
 			public void run() {
 				try {
-					DocbaseListDialog dld = new DocbaseListDialog(
-							DocbaseTreeView.this.getSite().getShell());
+					DocbaseListDialog dld = new DocbaseListDialog(DocbaseTreeView.this.getSite().getShell());
 					int status = dld.open();
 					if (status == DocbaseListDialog.OK) {
 						String repoName = dld.getSelectedRepo();
@@ -341,8 +332,7 @@ public class DocbaseTreeView extends ViewPart {
 					return;
 				}
 
-				IStructuredSelection sel = (IStructuredSelection) tv
-						.getSelection();
+				IStructuredSelection sel = (IStructuredSelection) tv.getSelection();
 				Object selObj = sel.getFirstElement();
 				if (selObj != null) {
 					DocbaseItem dtd = (DocbaseItem) selObj;
@@ -375,13 +365,10 @@ public class DocbaseTreeView extends ViewPart {
 						bufInfo.append("\n").append(key).append("=").append(val);
 					}
 
-					SimpleTextDialog std = new SimpleTextDialog(
-							DocbaseTreeView.this.getSite().getShell(),
-							"DFC Information", bufInfo.toString());
+					SimpleTextDialog std = new SimpleTextDialog(DocbaseTreeView.this.getSite().getShell(), "DFC Information", bufInfo.toString());
 					std.open();
 				} catch (Exception ex) {
-					MessageDialog.openError(DocbaseTreeView.this.getSite()
-							.getShell(), "Error", ex.getMessage());
+					MessageDialog.openError(DocbaseTreeView.this.getSite().getShell(), "Error", ex.getMessage());
 				}
 			}
 		};
@@ -390,8 +377,7 @@ public class DocbaseTreeView extends ViewPart {
 
 		encodeURL = new Action("Encode URL") {
 			public void run() {
-				InputDialog id = new InputDialog(DocbaseTreeView.this.getSite().getShell(), "URL Encoder",
-						"Please Enter URL to be Encoded", null, null);
+				InputDialog id = new InputDialog(DocbaseTreeView.this.getSite().getShell(), "URL Encoder", "Please Enter URL to be Encoded", null, null);
 				if (id.open() == InputDialog.OK) {
 					try {
 						String url = id.getValue();
@@ -406,15 +392,13 @@ public class DocbaseTreeView extends ViewPart {
 		};
 
 		dumpProperties = new DumpPropertiesAction(this.getCurrentTreeViewer());
-		dumpProperties
-				.setImageDescriptor(PluginHelper.getImageDesc("info.gif"));
+		dumpProperties.setImageDescriptor(PluginHelper.getImageDesc("info.gif"));
 		dumpProperties.setText("Show Properties");
 	}
 
 	/**
 	 * Creates filters. This is currently not used as a filter causes the whole
 	 * tree to be redrawn.
-	 * 
 	 */
 	protected void createFilters() {
 		docFilter = new DmDocumentFilter();
@@ -423,7 +407,7 @@ public class DocbaseTreeView extends ViewPart {
 
 	/**
 	 * Create the context(popup) menu.
-	 * 
+	 *
 	 * @param viewer treeViewer
 	 */
 	protected void createPopupMenu(TreeViewer viewer) {
@@ -471,7 +455,7 @@ public class DocbaseTreeView extends ViewPart {
 
 	/**
 	 * Add a docbase to the view.
-	 * 
+	 *
 	 * @param docbase documentum base name
 	 */
 	public void addDocbase(String docbase) {
@@ -489,7 +473,7 @@ public class DocbaseTreeView extends ViewPart {
 	/**
 	 * Remove a docbase from the view. Note that this does not destroy the
 	 * docbase session.
-	 * 
+	 *
 	 * @param docbase documentum base name
 	 */
 	public void removeDocbase(String docbase) {
@@ -507,8 +491,7 @@ public class DocbaseTreeView extends ViewPart {
 	}
 
 	protected DocbaseItem getSelectedNode() {
-		IStructuredSelection sel = (IStructuredSelection) treeViewer
-				.getSelection();
+		IStructuredSelection sel = (IStructuredSelection) treeViewer.getSelection();
 		if (!sel.isEmpty()) {
 			return (DocbaseItem) sel.getFirstElement();
 		}
@@ -517,12 +500,10 @@ public class DocbaseTreeView extends ViewPart {
 
 	/**
 	 * Finds extensions to the tree view.
-	 * 
 	 */
 	protected void findExtensions() {
 		IExtensionRegistry reg = Platform.getExtensionRegistry();
-		IExtensionPoint ep = reg
-				.getExtensionPoint(DevprogPlugin.REPO_TREE_EXT_ID);
+		IExtensionPoint ep = reg.getExtensionPoint(DevprogPlugin.REPO_TREE_EXT_ID);
 		IExtension[] extensions = ep.getExtensions();
 		repoExtensions = new ArrayList<RepoTreeExtension>();
 		for (IExtension ext : extensions) {
@@ -544,7 +525,7 @@ public class DocbaseTreeView extends ViewPart {
 	}
 
 	private void initializePreferences() {
-		Preferences prefs = DevprogPlugin.getDefault().getPluginPreferences();
+		IPreferenceStore prefs = DevprogPlugin.getDefault().getPreferenceStore();
 
 		String attrList = prefs.getString("ATTR_LIST");
 	}
@@ -556,7 +537,7 @@ public class DocbaseTreeView extends ViewPart {
 		dt.setTransfer(types);
 		dt.addDropListener(new DropTargetAdapter() {
 			public void dragOver(DropTargetEvent event) {
-				System.out.println("Droptargetevent:  "	+ event.currentDataType.toString());
+				System.out.println("Droptargetevent:  " + event.currentDataType.toString());
 				event.feedback = DND.FEEDBACK_EXPAND | DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
 			}
 
@@ -643,8 +624,7 @@ public class DocbaseTreeView extends ViewPart {
 	private void setupOneTreeViewer(String docbaseName) {
 		Shell sh = parent.getShell();
 		TreeViewer viewer = new TreeViewer(treeStack);
-		ITreeContentProvider contentProvider = new DocbaseTreeContentProvider(
-				sh, docbaseName);
+		ITreeContentProvider contentProvider = new DocbaseTreeContentProvider(sh, docbaseName);
 		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(new DocbaseTreeLabelProvider());
 		viewer.setSorter(new ViewerSorter());
@@ -673,7 +653,7 @@ public class DocbaseTreeView extends ViewPart {
 		/*
 		 * Tree visibleTree = (Tree) treeStackLayout.topControl; if (visibleTree
 		 * != null) {
-		 * 
+		 *
 		 * String name = (String) visibleTree.getData(); TreeViewer tv =
 		 * (TreeViewer) treeViewers.get(name); return tv; } return null;
 		 */
@@ -683,8 +663,7 @@ public class DocbaseTreeView extends ViewPart {
 	private void createShowDocbaseTreeActions() {
 		try {
 			String mnuName = "Repositories";
-			IMenuManager menuMgr = getViewSite().getActionBars()
-					.getMenuManager();
+			IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
 
 			IMenuManager dbLstMnu = menuMgr.findMenuUsingPath(mnuName);
 			if (dbLstMnu == null) {
@@ -701,8 +680,7 @@ public class DocbaseTreeView extends ViewPart {
 
 					public void run() {
 						String dbName = this.getText();
-						TreeViewer dbViewer = (TreeViewer) treeViewers
-								.get(dbName);
+						TreeViewer dbViewer = (TreeViewer) treeViewers.get(dbName);
 						if (dbViewer != null) {
 							Tree tr = dbViewer.getTree();
 							treeStackLayout.topControl = tr;
@@ -724,8 +702,7 @@ public class DocbaseTreeView extends ViewPart {
 
 			menuMgr.add(dbLstMnu);
 		} catch (Throwable err) {
-			MessageDialog.openError(super.getSite().getShell(), "Error",
-					err.getMessage());
+			MessageDialog.openError(super.getSite().getShell(), "Error", err.getMessage());
 		}
 	}
 
@@ -782,7 +759,7 @@ public class DocbaseTreeView extends ViewPart {
 		try {
 			Map<String, DocbaseInfo> a = PluginState.getSessionManagers();
 
-			for(String docbaseName : a.keySet()) {
+			for (String docbaseName : a.keySet()) {
 				DocbaseInfo docbaseInfo = a.get(docbaseName);
 				docbaseInfo.prepareForSave();
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -804,17 +781,15 @@ public class DocbaseTreeView extends ViewPart {
 		try {
 			if (memento != null) {
 				String keys[] = memento.getAttributeKeys();
-				for(String key : keys) {
-					if(key.startsWith("SESSION_MANAGER")) {
+				for (String key : keys) {
+					if (key.startsWith("SESSION_MANAGER")) {
 						String docbaseName = key.substring("SESSION_MANAGER".length() + 1);
 						String encStr = memento.getString(key);
 						if (encStr != null && encStr.length() > 0) {
 							byte[] encrBytes = BlowfishJC.convertHexToBytes(encStr);
 							String hostName = InetAddress.getLocalHost().getHostName();
-							byte[] decrBytes = BlowfishJC.decryptData(hostName,
-									encrBytes);
-							ByteArrayInputStream bin = new ByteArrayInputStream(
-									decrBytes);
+							byte[] decrBytes = BlowfishJC.decryptData(hostName, encrBytes);
+							ByteArrayInputStream bin = new ByteArrayInputStream(decrBytes);
 							ObjectInputStream objIn = new ObjectInputStream(bin);
 							DocbaseInfo di = (DocbaseInfo) objIn.readObject();
 							di.restore();
@@ -826,5 +801,9 @@ public class DocbaseTreeView extends ViewPart {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
 	}
 }

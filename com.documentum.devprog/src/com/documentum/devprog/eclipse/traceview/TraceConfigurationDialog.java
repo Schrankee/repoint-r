@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Sep 20, 2006
@@ -53,7 +53,8 @@ public class TraceConfigurationDialog extends Dialog {
 	private TraceConfigurationComposite comp;
 
 	/**
-	 * @param parentShell
+	 * Constructor.
+	 * @param parentShell shell
 	 */
 	public TraceConfigurationDialog(Shell parentShell) {
 		super(parentShell);

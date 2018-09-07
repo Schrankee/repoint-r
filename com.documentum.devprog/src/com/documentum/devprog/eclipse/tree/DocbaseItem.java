@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -26,8 +25,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ ï¿½*ï¿½
+ ï¿½*******************************************************************************/
 
 /*
  * Created on Jul 16, 2004
@@ -66,9 +65,6 @@ import org.eclipse.swt.widgets.Display;
 import com.documentum.com.DfClientX;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
 public class DocbaseItem {
@@ -77,43 +73,34 @@ public class DocbaseItem {
 	// private static String ATTR_LIST =
 	// "r_object_id,object_name,title,r_link_cnt,r_object_type,a_content_type,r_lock_owner";
 
-	public final static Integer ROOT = new Integer(0);
+	public static final Integer ROOT = 0;
 
 	/**
 	 * Constant that represents a Repository node (i.e. the root node of a
 	 * repo).
 	 */
-	public final static Integer DOCBASE_TYPE = new Integer(1);
-
-	public final static Integer VDOC_TYPE = new Integer(21);
-
-	public final static Integer TYPED_OBJ_TYPE = new Integer(2);
+	public static final Integer DOCBASE_TYPE = 1;
+	public static final Integer VDOC_TYPE = 21;
+	public static final Integer TYPED_OBJ_TYPE = 2;
 
 	// public final static String MORE_TYPE = "moreChildren";
 
 	private Integer type = null;
-
 	private Object data = null;
-
 	private DocbaseItem parent = null;
-
-	private HashMap additionalData = new HashMap();
+	private HashMap<String, String> additionalData = new HashMap<String, String>();
 
 	private static String folderIcon = "type/t_dm_folder_16.gif";
-
 	private static String docIcon = "type/t_dm_document_16.gif";
-
 	private static String unknownType = "type/t_unknown_16.gif";
-
 	private static String cabIcon = "type/t_dm_cabinet_16.gif";
-
 	private static String lockIcon = "lock.gif";
 
 	/**
 	 * Sets the type of the tree node. Example:
 	 * DOCBASE_TYPE,VDOC_TYPE,TYPED_OBJ_TYPE
-	 * 
-	 * @param type
+	 *
+	 * @param type type of the tree node
 	 */
 	public void setType(Integer type) {
 		this.type = type;
@@ -121,7 +108,7 @@ public class DocbaseItem {
 
 	/**
 	 * Gets the type of this node.
-	 * 
+	 *
 	 * @return DOCBASE_TYPE, VDOC_TYPE, TYPED_OBJ_TYPE
 	 */
 	public Integer getType() {
@@ -130,7 +117,7 @@ public class DocbaseItem {
 
 	/**
 	 * Sets the data belonging to this node.
-	 * 
+	 *
 	 * @param data
 	 */
 	public void setData(Object data) {
@@ -139,9 +126,9 @@ public class DocbaseItem {
 
 	/**
 	 * gets the Data contained by this node.
-	 * 
+	 *
 	 * @return VDOC_TYPE=>IDfVirtualDocumentNode, TYPED_OBJ_TYPE=>IDfTypedObject
-	 *         DOCBASE_TYPE=>Name of the repo.
+	 * DOCBASE_TYPE=>Name of the repo.
 	 */
 	public Object getData() {
 		return data;
@@ -149,7 +136,7 @@ public class DocbaseItem {
 
 	/**
 	 * Sets the parent of this node.
-	 * 
+	 *
 	 * @param parent
 	 */
 	public void setParent(DocbaseItem parent) {
@@ -158,7 +145,7 @@ public class DocbaseItem {
 
 	/**
 	 * Gets the parent of this node
-	 * 
+	 *
 	 * @return
 	 */
 	public DocbaseItem getParent() {
@@ -232,12 +219,11 @@ public class DocbaseItem {
 	/**
 	 * Creates a new DocbaseTreeData object of TYPED_OBJ type. Use this to
 	 * create objects any sysobjects (e.g. documents, folders, methods,...).
-	 * 
-	 * @param oi
+	 *
+	 * @param oi object id
 	 * @return
 	 */
-	public static DocbaseItem newTypedObjectInstance(DocbaseItem parent,
-			IDfId oi) throws Exception {
+	public static DocbaseItem newTypedObjectInstance(DocbaseItem parent, IDfId oi) throws Exception {
 		IDfTypedObject to = getTypedObject(oi.getId());
 
 		DocbaseItem d = new DocbaseItem();
@@ -251,7 +237,7 @@ public class DocbaseItem {
 	 * Replaces the current IDfTypedObject with a new one specified by the obj
 	 * id The method will populate the typed object with the necessary
 	 * attributes
-	 * 
+	 *
 	 * @param objId
 	 * @throws DfException
 	 */
@@ -263,38 +249,30 @@ public class DocbaseItem {
 
 	/**
 	 * Refreshes the attributes of the current typed object.
-	 * 
+	 *
 	 * @throws DfException
 	 */
 	public void refreshTypedObject() throws DfException {
 		if (this.getType() == DocbaseItem.TYPED_OBJ_TYPE) {
-			String objId = ((IDfTypedObject) getData())
-					.getString("r_object_id");
+			String objId = ((IDfTypedObject) getData()).getString("r_object_id");
 			IDfTypedObject to = getTypedObject(objId);
 			this.setData(to);
 		}
 	}
 
-	private static IDfTypedObject getTypedObject(String objId)
-			throws DfException {
+	private static IDfTypedObject getTypedObject(String objId) throws DfException {
 		IDfSession sess = null;
 		IDfCollection coll = null;
 		try {
-			StringBuffer bufQuery = new StringBuffer(32);
-			bufQuery.append("select ").append(getDefaultQueryAttributes());
-			bufQuery.append(" from dm_sysobject where r_object_id='");
-			bufQuery.append(objId).append("'");
-			String q = bufQuery.toString();
+			String q = "select " + getDefaultQueryAttributes() + " from dm_sysobject where r_object_id='" + objId + "'";
 
 			IDfQuery qo = new DfClientX().getQuery();
 			qo.setDQL(q);
 			sess = PluginState.getSessionById(objId);
 			coll = qo.execute(sess, IDfQuery.DF_READ_QUERY);
 			if (coll.next()) {
-				IDfTypedObject to = coll.getTypedObject();
-				return to;
+				return coll.getTypedObject();
 			}
-
 		} finally {
 			if (coll != null) {
 				coll.close();
@@ -310,7 +288,7 @@ public class DocbaseItem {
 		try {
 
 			if (nodeType.equals(DocbaseItem.DOCBASE_TYPE)) {
-				StringBuffer dispData = new StringBuffer(12);
+				StringBuilder dispData = new StringBuilder(12);
 				IDfSession sess = null;
 				try {
 					String repoName = (String) treeData.getData();
@@ -318,9 +296,7 @@ public class DocbaseItem {
 					if (PluginState.hasIdentity(repoName)) {
 						sess = PluginState.getSession(repoName);
 						if (sess != null) {
-							dispData.append(" [")
-									.append(sess.getLoginUserName())
-									.append("]");
+							dispData.append(" [").append(sess.getLoginUserName()).append("]");
 						}
 					}
 					return dispData.toString();
@@ -342,8 +318,7 @@ public class DocbaseItem {
 				return objectName;
 			} else if (nodeType.equals(DocbaseItem.VDOC_TYPE)) {
 				// System.out.println("getText vDoc");
-				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData
-						.getData();
+				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData.getData();
 				// IDfSysObject selObj = vDocNode.getSelectedObject();
 				IDfBasicAttributes basAttrs = vDocNode.getBasicAttributes();
 				String objName = basAttrs.getString("object_name");
@@ -378,11 +353,10 @@ public class DocbaseItem {
 
 			} else if (nodeType.equals(DocbaseItem.TYPED_OBJ_TYPE)) {
 				IDfTypedObject tObj = (IDfTypedObject) treeData.getData();
-				String type = tObj.getString("r_object_type");
+				String objType = tObj.getString("r_object_type");
 				IDfId id = tObj.getId("r_object_id");
 
 				if (tObj.getString("r_lock_owner").length() > 0) {
-
 					addLock = true;
 				}
 
@@ -406,7 +380,7 @@ public class DocbaseItem {
 						 * != null) { Image img = new
 						 * Image(Display.getDefault(), idata); if(addLock) {
 						 * return overlayLock(img); }
-						 * 
+						 *
 						 * return img; } else
 						 */
 						{
@@ -417,9 +391,8 @@ public class DocbaseItem {
 						PluginState.releaseSession(sess);
 					}
 
-				} else if (id.getTypePart() == IDfId.DM_FOLDER
-						|| id.getTypePart() == IDfId.DM_CABINET) {
-					iconPath = "type/t_" + type + "_16.gif";
+				} else if (id.getTypePart() == IDfId.DM_FOLDER || id.getTypePart() == IDfId.DM_CABINET) {
+					iconPath = "type/t_" + objType + "_16.gif";
 
 					if (id.getTypePart() == IDfId.DM_CABINET) {
 						missingImg = cabIcon;
@@ -427,23 +400,19 @@ public class DocbaseItem {
 						missingImg = folderIcon;
 					}
 				} else {
-					iconPath = "type/t_" + type + "_16.gif";
+					iconPath = "type/t_" + objType + "_16.gif";
 					missingImg = unknownType;
 				}
 			} else if (nodeType.equals(DocbaseItem.VDOC_TYPE)) {
-				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData
-						.getData();
+				IDfVirtualDocumentNode vDocNode = (IDfVirtualDocumentNode) treeData.getData();
 				if (vDocNode.isVirtualDocument()) {
 					iconPath = "type/t_vdoc_16.gif";
 				} else {
-					IDfId id = vDocNode.getBasicAttributes().getId(
-							"r_object_id");
+					IDfId id = vDocNode.getBasicAttributes().getId("r_object_id");
 					IDfSession sess = null;
 					try {
 						sess = PluginState.getSessionById(id.toString());
-						IDfSysObject sObj = (IDfSysObject) sess
-								.getObjectWithType(id, null,
-										CommonConstants.DF_SYSOBJ_CLASS);
+						IDfSysObject sObj = (IDfSysObject) sess.getObject(id);
 						String contentType = sObj.getContentType();
 						iconPath = "format/f_" + contentType + "_16.gif";
 					} finally {
@@ -466,17 +435,15 @@ public class DocbaseItem {
 	}
 
 	/**
-	 * @return the aTTR_LIST
+	 * @return the ATTR_LIST
 	 */
 	public static String getDefaultQueryAttributes() {
-		return DevprogPlugin.getDefault().getPluginPreferences()
-				.getString(PreferenceConstants.P_ATTR_LIST);
+		return DevprogPlugin.getDefault().getPreferenceStore().getString(PreferenceConstants.P_ATTR_LIST);
 	}
 
 	private Image overlayLock(Image img) {
 		Image lckImg = PluginHelper.getImage("lock.gif");
-		IconEmbelisher ie = new IconEmbelisher(img, lckImg,
-				IconEmbelisher.BOTTOM_RIGHT);
+		IconEmbelisher ie = new IconEmbelisher(img, lckImg, IconEmbelisher.BOTTOM_RIGHT);
 		return ie.getImage();
 	}
 

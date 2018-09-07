@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -38,7 +37,14 @@ package com.documentum.devprog.eclipse.query;
 
 import com.documentum.devprog.common.UtilityMethods;
 import com.documentum.devprog.eclipse.DevprogPlugin;
-import com.documentum.devprog.eclipse.common.*;
+import com.documentum.devprog.eclipse.common.CommonConstants;
+import com.documentum.devprog.eclipse.common.DocbaseListDialog;
+import com.documentum.devprog.eclipse.common.DocbaseLoginDialog;
+import com.documentum.devprog.eclipse.common.MRUItem;
+import com.documentum.devprog.eclipse.common.MRUQueue;
+import com.documentum.devprog.eclipse.common.PluginHelper;
+import com.documentum.devprog.eclipse.common.PluginState;
+import com.documentum.devprog.eclipse.common.SimpleListDialog;
 import com.documentum.devprog.eclipse.libraryfunc.ACLDialog;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfQuery;
@@ -50,25 +56,80 @@ import com.documentum.fc.common.DfLogger;
 import com.documentum.fc.common.IDfId;
 import com.documentum.xml.xdql.DfXmlQuery;
 import com.documentum.xml.xdql.IDfXmlQuery;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.*;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.custom.*;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
+import org.eclipse.swt.custom.ExtendedModifyListener;
+import org.eclipse.swt.custom.PopupList;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.TableCursor;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.*;
+import org.eclipse.swt.events.ExpandEvent;
+import org.eclipse.swt.events.ExpandListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.swt.widgets.ExpandItem;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.ui.progress.IProgressService;
@@ -76,12 +137,16 @@ import org.eclipse.ui.progress.IProgressService;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
 public class QueryView extends ViewPart {
@@ -191,8 +256,7 @@ public class QueryView extends ViewPart {
 
 	private SortedMap favoriteQueries = new TreeMap();
 
-	final private static String KEY_FAV_QUERIES = Messages
-			.getString("QueryView.1"); //$NON-NLS-1$
+	final private static String KEY_FAV_QUERIES = Messages.getString("QueryView.1"); //$NON-NLS-1$
 
 	private HashSet queryKeywords = new HashSet();
 
@@ -238,7 +302,7 @@ public class QueryView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets
 	 * .Composite)
@@ -299,8 +363,7 @@ public class QueryView extends ViewPart {
 		eiQueryCfg = new ExpandItem(expandBar, SWT.NONE, 0);
 		eiQueryCfg.setText("Query Configuration");
 		eiQueryCfg.setControl(queryComposite);
-		eiQueryCfg.setHeight(queryComposite.computeSize(SWT.DEFAULT,
-				SWT.DEFAULT).y);
+		eiQueryCfg.setHeight(queryComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 		eiQueryCfg.setExpanded(true);
 
 		createResultsUI(expandBar);
@@ -342,13 +405,11 @@ public class QueryView extends ViewPart {
 
 	protected void createMenus() {
 		IMenuManager menuMgr = getViewSite().getActionBars().getMenuManager();
-		IMenuManager favMnu = new MenuManager(
-				Messages.getString("QueryView.MNU_FAVORITES")); //$NON-NLS-1$
+		IMenuManager favMnu = new MenuManager(Messages.getString("QueryView.MNU_FAVORITES")); //$NON-NLS-1$
 		menuMgr.add(favMnu);
 		favMnu.add(addToFavorites);
 		favMnu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		favMnu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS
-				+ Messages.getString("QueryView.3"))); //$NON-NLS-1$
+		favMnu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS + Messages.getString("QueryView.3"))); //$NON-NLS-1$
 
 		favMnu.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
@@ -403,13 +464,11 @@ public class QueryView extends ViewPart {
 		menuMgr.add(showACL);
 		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
-		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS
-				+ Messages.getString("QueryView.5"))); //$NON-NLS-1$
+		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS + Messages.getString("QueryView.5"))); //$NON-NLS-1$
 	}
 
 	protected void createToolbar() {
-		IToolBarManager tbMgr = getViewSite().getActionBars()
-				.getToolBarManager();
+		IToolBarManager tbMgr = getViewSite().getActionBars().getToolBarManager();
 		tbMgr.add(selectRepo);
 		tbMgr.add(showOldQueries);
 		tbMgr.add(prepareCSVFile);
@@ -419,24 +478,21 @@ public class QueryView extends ViewPart {
 	}
 
 	protected void createActions() {
-		dumpProperties = new Action(
-				Messages.getString("QueryView.ACT_DUMP_PROPS")) //$NON-NLS-1$
+		dumpProperties = new Action(Messages.getString("QueryView.ACT_DUMP_PROPS")) //$NON-NLS-1$
 		{
 			public void run() {
 				dumpProperties(getSelectedData());
 			}
 		};
 
-		showACL = new Action(
-				Messages.getString("QueryView.ACT_SHOW_ACL")) //$NON-NLS-1$
+		showACL = new Action(Messages.getString("QueryView.ACT_SHOW_ACL")) //$NON-NLS-1$
 		{
 			public void run() {
 				showACL(getSelectedData());
 			}
 		};
 
-		showOldQueries = new Action(
-				Messages.getString("QueryView.ACT_OLD_QUERIES")) //$NON-NLS-1$
+		showOldQueries = new Action(Messages.getString("QueryView.ACT_OLD_QUERIES")) //$NON-NLS-1$
 		{
 			public void run() {
 				String[] oldQLst = getOldQueryList();
@@ -447,10 +503,8 @@ public class QueryView extends ViewPart {
 				Point curLocation = curDisp.getCursorLocation();
 				// System.out.println("x: " + curLocation.x + ": y=" +
 				// curLocation.y);
-				Rectangle rect = new Rectangle(curLocation.x, curLocation.y,
-						500, 10);
-				oldQueryListBox = new PopupList(QueryView.this.getSite()
-						.getShell(), SWT.H_SCROLL | SWT.V_SCROLL);
+				Rectangle rect = new Rectangle(curLocation.x, curLocation.y, 500, 10);
+				oldQueryListBox = new PopupList(QueryView.this.getSite().getShell(), SWT.H_SCROLL | SWT.V_SCROLL);
 
 				oldQueryListBox.setItems(getOldQueryList());
 				String selected = oldQueryListBox.open(rect);
@@ -459,13 +513,10 @@ public class QueryView extends ViewPart {
 				}
 			}
 		};
-		showOldQueries.setImageDescriptor(PluginHelper.getImageDesc(Messages
-				.getString("QueryView.8"))); //$NON-NLS-1$
-		showOldQueries.setToolTipText(Messages
-				.getString("QueryView.TIP_OLD_QUERIES")); //$NON-NLS-1$
+		showOldQueries.setImageDescriptor(PluginHelper.getImageDesc(Messages.getString("QueryView.8"))); //$NON-NLS-1$
+		showOldQueries.setToolTipText(Messages.getString("QueryView.TIP_OLD_QUERIES")); //$NON-NLS-1$
 
-		prepareCSVFile = new Action(
-				Messages.getString("QueryView.ACT_SAVE_RESULTS")) //$NON-NLS-1$
+		prepareCSVFile = new Action(Messages.getString("QueryView.ACT_SAVE_RESULTS")) //$NON-NLS-1$
 		{
 			public void run() {
 				/*
@@ -475,78 +526,60 @@ public class QueryView extends ViewPart {
 				 * if (lstTObjs == null) { return; }
 				 */
 
-				FileDialog fdlg = new FileDialog(QueryView.this.getSite()
-						.getShell(), SWT.SAVE | SWT.SINGLE);
-				fdlg.setFilterExtensions(new String[] { Messages
-						.getString("QueryView.11") }); //$NON-NLS-1$
+				FileDialog fdlg = new FileDialog(QueryView.this.getSite().getShell(), SWT.SAVE | SWT.SINGLE);
+				fdlg.setFilterExtensions(new String[] { Messages.getString("QueryView.11") }); //$NON-NLS-1$
 				String filename = fdlg.open();
 
 				if (filename != null) {
 					try {
 
-						if (filename.endsWith(Messages
-								.getString("QueryView.12")) == false) //$NON-NLS-1$
+						if (filename.endsWith(Messages.getString("QueryView.12")) == false) //$NON-NLS-1$
 						{
 							filename += Messages.getString("QueryView.13"); //$NON-NLS-1$
 						}
 
 						File fl = new File(filename);
 						if (fl.exists()) {
-							boolean ok = MessageDialog
-									.openConfirm(
-											QueryView.this.getSite().getShell(),
-											Messages.getString("QueryView.DLG_FILE_OVERWRITE"), Messages.getString("QueryView.15") + filename + Messages.getString("QueryView.16")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							boolean ok = MessageDialog.openConfirm(QueryView.this.getSite().getShell(), Messages.getString("QueryView.DLG_FILE_OVERWRITE"),
+									Messages.getString("QueryView.15") + filename + Messages.getString("QueryView.16")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (ok == false) {
 								return;
 							}
 						}
 
-						CSVFilePreparer filePrep = new CSVFilePreparer(
-								resultsViewer, filename);
-						IProgressService progServ = PlatformUI.getWorkbench()
-								.getProgressService();
+						CSVFilePreparer filePrep = new CSVFilePreparer(resultsViewer, filename);
+						IProgressService progServ = PlatformUI.getWorkbench().getProgressService();
 						// progServ.busyCursorWhile(filePrep);
-						progServ.runInUI(QueryView.this.getSite()
-								.getWorkbenchWindow(), filePrep, null);
+						progServ.runInUI(QueryView.this.getSite().getWorkbenchWindow(), filePrep, null);
 						Exception ex = filePrep.getException();
 						if (ex != null) {
-							MessageDialog
-									.openError(
-											QueryView.this.getSite().getShell(),
-											Messages.getString("QueryView.DLG_TITLE_SAVE_RESULTS"), ex //$NON-NLS-1$
-													.getMessage());
+							MessageDialog.openError(QueryView.this.getSite().getShell(), Messages.getString("QueryView.DLG_TITLE_SAVE_RESULTS"), ex //$NON-NLS-1$
+									.getMessage());
 						} else {
-							MessageDialog
-									.openInformation(
-											QueryView.this.getSite().getShell(),
-											"CSV File Preparation", Messages.getString("QueryView.DLG_MSG_SAVE_RESULTS_SUCCESS")); //$NON-NLS-1$ //$NON-NLS-2$                            
+							MessageDialog.openInformation(QueryView.this.getSite().getShell(), "CSV File Preparation",
+									Messages.getString("QueryView.DLG_MSG_SAVE_RESULTS_SUCCESS")); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 
 					} catch (Exception ex) {
-						MessageDialog.openError(QueryView.this.getSite()
-								.getShell(), "CSV File Preparation", ex //$NON-NLS-1$
+						MessageDialog.openError(QueryView.this.getSite().getShell(), "CSV File Preparation", ex //$NON-NLS-1$
 								.getMessage());
 					}
 				}
 
 			}
 		};
-		prepareCSVFile.setImageDescriptor(PluginHelper
-				.getImageDesc(CommonConstants.SAVE_ICON));
-		prepareCSVFile.setToolTipText(Messages
-				.getString("QueryView.TTIP_SAVE_RESULTS")); //$NON-NLS-1$
+		prepareCSVFile.setImageDescriptor(PluginHelper.getImageDesc(CommonConstants.SAVE_ICON));
+		prepareCSVFile.setToolTipText(Messages.getString("QueryView.TTIP_SAVE_RESULTS")); //$NON-NLS-1$
 
 		selectRepo = new Action(Messages.getString("QueryView.ACT_SELECT_REPO")) //$NON-NLS-1$
 		{
 			public void run() {
-				DocbaseListDialog dld = new DocbaseListDialog(getSite()
-						.getShell());
+				DocbaseListDialog dld = new DocbaseListDialog(getSite().getShell());
 				int status = dld.open();
 				if (status == DocbaseListDialog.OK) {
 					String selRepo = dld.getSelectedRepo();
 					if (PluginState.hasIdentity(selRepo) == false) {
-						DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(
-								getSite().getShell());
+						DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(getSite().getShell());
 						loginDlg.setDocbaseName(selRepo);
 						int st = loginDlg.open();
 						if (st == DocbaseLoginDialog.CANCEL) {
@@ -555,17 +588,14 @@ public class QueryView extends ViewPart {
 						}
 					}
 					PluginState.setDocbase(selRepo);
-					QueryView.this.setContentDescription("Current Repository: "
-							+ selRepo);
-					this.setToolTipText(Messages
-							.getString("QueryView.TTIP_SELECT_REPO") + selRepo); //$NON-NLS-1$
+					QueryView.this.setContentDescription("Current Repository: " + selRepo);
+					this.setToolTipText(Messages.getString("QueryView.TTIP_SELECT_REPO") + selRepo); //$NON-NLS-1$
 
 				}
 
 			}
 		};
-		selectRepo.setImageDescriptor(PluginHelper.getImageDesc(Messages
-				.getString("QueryView.24"))); //$NON-NLS-1$
+		selectRepo.setImageDescriptor(PluginHelper.getImageDesc(Messages.getString("QueryView.24"))); //$NON-NLS-1$
 		String initTt = Messages.getString("QueryView.25"); //$NON-NLS-1$
 		String curDb = PluginState.getDocbase();
 		if (curDb != null && curDb.length() > 0) {
@@ -578,20 +608,17 @@ public class QueryView extends ViewPart {
 			public void run() {
 				String selText = getSelectedData();
 				TextTransfer tt = TextTransfer.getInstance();
-				clipboard.setContents(new String[] { selText },
-						new TextTransfer[] { tt });
+				clipboard.setContents(new String[] { selText }, new TextTransfer[] { tt });
 			}
 		};
 
-		addToFavorites = new Action(
-				Messages.getString("QueryView.ACT_ADD_TO_FAV")) //$NON-NLS-1$
+		addToFavorites = new Action(Messages.getString("QueryView.ACT_ADD_TO_FAV")) //$NON-NLS-1$
 		{
 			public void run() {
 				String query = queryText.getText();
 				if (query != null && query.length() > 0) {
-					InputDialog id = new InputDialog(
-							QueryView.this.getSite().getShell(),
-							Messages.getString("QueryView.DLG_TITLE_FAV_NAME"), Messages.getString("QueryView.DLG_MSG_FAV_NAME"), "", new FavNameValidator(favoriteQueries)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					InputDialog id = new InputDialog(QueryView.this.getSite().getShell(), Messages.getString("QueryView.DLG_TITLE_FAV_NAME"), Messages.getString("QueryView.DLG_MSG_FAV_NAME"), "",
+							new FavNameValidator(favoriteQueries)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					int status = id.open();
 					if (status == InputDialog.OK) {
 						String desc = id.getValue();
@@ -601,18 +628,15 @@ public class QueryView extends ViewPart {
 
 			}
 		};
-		addToFavorites.setImageDescriptor(PluginHelper.getImageDesc(Messages
-				.getString("QueryView.IMG_FAV_ACTION"))); //$NON-NLS-1$
-		addToFavorites.setToolTipText(Messages
-				.getString("QueryView.TTIP_ADD_TO_FAV")); //$NON-NLS-1$
+		addToFavorites.setImageDescriptor(PluginHelper.getImageDesc(Messages.getString("QueryView.IMG_FAV_ACTION"))); //$NON-NLS-1$
+		addToFavorites.setToolTipText(Messages.getString("QueryView.TTIP_ADD_TO_FAV")); //$NON-NLS-1$
 
 		executeDQLAsync = new Action("Execute Async") {
 			public void run() {
 				executeDQL(true);
 			}
 		};
-		executeDQLAsync.setImageDescriptor(PluginHelper
-				.getImageDesc("async_dql.gif"));
+		executeDQLAsync.setImageDescriptor(PluginHelper.getImageDesc("async_dql.gif"));
 		executeDQLAsync.setToolTipText("Execute DQL Query in Background");
 
 		showPaths = new Action("Show Paths") {
@@ -623,17 +647,13 @@ public class QueryView extends ViewPart {
 					IDfSession sess = null;
 					try {
 						sess = PluginState.getSessionById(objId);
-						IDfSysObject sobj = (IDfSysObject) sess
-								.getObject(objId);
+						IDfSysObject sobj = (IDfSysObject) sess.getObject(objId);
 						String[] paths = UtilityMethods.getPaths(sobj, true);
-						SimpleListDialog sld = new SimpleListDialog(
-								QueryView.this.getSite().getShell(), paths,
-								"Paths: " + sobj.getObjectName());
+						SimpleListDialog sld = new SimpleListDialog(QueryView.this.getSite().getShell(), paths, "Paths: " + sobj.getObjectName());
 						sld.open();
 					} catch (Exception ex) {
 						DfLogger.error(this, "Error getting paths", null, ex);
-						MessageDialog.openError(QueryView.this.getSite()
-								.getShell(), "Paths Error", ex.getMessage());
+						MessageDialog.openError(QueryView.this.getSite().getShell(), "Paths Error", ex.getMessage());
 					} finally {
 
 					}
@@ -642,11 +662,9 @@ public class QueryView extends ViewPart {
 			}
 		};
 
-		this.enableKeyboardScroll = new EnableKbHistoryNav(
-				"Enable Keyboard History Scroll");
-		this.enableKeyboardScroll.setImageDescriptor(PluginHelper
-				.getImageDesc("history_nav.gif"));
-		Preferences prefs = DevprogPlugin.getDefault().getPluginPreferences();
+		this.enableKeyboardScroll = new EnableKbHistoryNav("Enable Keyboard History Scroll");
+		this.enableKeyboardScroll.setImageDescriptor(PluginHelper.getImageDesc("history_nav.gif"));
+		IPreferenceStore prefs = DevprogPlugin.getDefault().getPreferenceStore();
 		String strBool = prefs.getString(this.enable_kb_hist_nav);
 		boolean bl = prefs.getBoolean(this.enable_kb_hist_nav);
 		this.enableKeyboardScroll.setChecked(bl);
@@ -655,7 +673,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Gets the selected data from the TableCursor.
-	 * 
+	 *
 	 * @return
 	 */
 	protected String getSelectedData() {
@@ -676,7 +694,7 @@ public class QueryView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
@@ -685,7 +703,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Creates the text box where the query is entered.
-	 * 
+	 *
 	 * @param parent
 	 */
 	protected void createQueryBox(Composite parent) {
@@ -807,12 +825,12 @@ public class QueryView extends ViewPart {
 					 * + eme.replacedText + ":" + eme.length); QueryWord qw =
 					 * getWord(eme.start); System.out.println("query word =" +
 					 * qw.word);
-					 * 
+					 *
 					 * //current style range StyleRange curRange = queryText
 					 * .getStyleRangeAtOffset(qw.start); // define keywords
 					 * style range StyleRange sr =
 					 * getKeywordsStyleRange(qw.start,qw.word.length());
-					 * 
+					 *
 					 * if (isKeyword(qw.word)) {
 					 * queryText.replaceStyleRanges(sr.start, sr.length, new
 					 * StyleRange[] { sr }); } else if (curRange != null &&
@@ -827,28 +845,18 @@ public class QueryView extends ViewPart {
 						// works correctly
 						// Look for a better soln in future - Aashish .
 						String text = queryText.getText() + " ";
-						SimpleDQLTokenizer toks = new SimpleDQLTokenizer(text,
-								true);
+						SimpleDQLTokenizer toks = new SimpleDQLTokenizer(text, true);
 						while (toks.hasNext()) {
 							QueryWord qw = (QueryWord) toks.next();
 							if (isKeyword(qw.word)) {
-								StyleRange sr = getKeywordsStyleRange(qw.start,
-										qw.word.length());
-								queryText.replaceStyleRanges(qw.start,
-										qw.word.length(),
-										new StyleRange[] { sr });
+								StyleRange sr = getKeywordsStyleRange(qw.start, qw.word.length());
+								queryText.replaceStyleRanges(qw.start, qw.word.length(), new StyleRange[] { sr });
 							} else if (isTypeName(qw.word)) {
-								StyleRange sr = getTypeStyleRange(qw.start,
-										qw.word.length());
-								queryText.replaceStyleRanges(qw.start,
-										qw.word.length(),
-										new StyleRange[] { sr });
+								StyleRange sr = getTypeStyleRange(qw.start, qw.word.length());
+								queryText.replaceStyleRanges(qw.start, qw.word.length(), new StyleRange[] { sr });
 							} else {
-								StyleRange sr = getDefaultStyleRange(qw.start,
-										qw.word.length());
-								queryText.replaceStyleRanges(qw.start,
-										qw.word.length(),
-										new StyleRange[] { sr });
+								StyleRange sr = getDefaultStyleRange(qw.start, qw.word.length());
+								queryText.replaceStyleRanges(qw.start, qw.word.length(), new StyleRange[] { sr });
 							}
 						}
 
@@ -950,8 +958,7 @@ public class QueryView extends ViewPart {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		optParent.setLayout(layout);
-		optParent.setToolTipText(Messages
-				.getString("QueryView.TTIP_DQL_QUERY_OPT")); //$NON-NLS-1$        
+		optParent.setToolTipText(Messages.getString("QueryView.TTIP_DQL_QUERY_OPT")); //$NON-NLS-1$
 
 		readQuery = new Button(optParent, SWT.RADIO);
 		readQuery.setText(Messages.getString("QueryView.DQL_READ_QUERY")); //$NON-NLS-1$
@@ -961,8 +968,7 @@ public class QueryView extends ViewPart {
 		execQuery.setText(Messages.getString("QueryView.DQL_EXEC_QUERY")); //$NON-NLS-1$
 
 		execReadQuery = new Button(optParent, SWT.RADIO);
-		execReadQuery.setText(Messages
-				.getString("QueryView.DQL_EXEC_READ_QUERY")); //$NON-NLS-1$
+		execReadQuery.setText(Messages.getString("QueryView.DQL_EXEC_READ_QUERY")); //$NON-NLS-1$
 
 		applyQuery = new Button(optParent, SWT.RADIO);
 		applyQuery.setText(Messages.getString("QueryView.DQL_APPLY_QUERY")); //$NON-NLS-1$
@@ -992,35 +998,28 @@ public class QueryView extends ViewPart {
 		optXDQL.setLayout(gl);
 
 		followAssembly = new Button(optXDQL, SWT.CHECK);
-		followAssembly.setText(Messages
-				.getString("QueryView.XDQL_FOLLOW_ASSEM")); //$NON-NLS-1$
+		followAssembly.setText(Messages.getString("QueryView.XDQL_FOLLOW_ASSEM")); //$NON-NLS-1$
 
 		virtualDocumentNested = new Button(optXDQL, SWT.CHECK);
-		virtualDocumentNested.setText(Messages
-				.getString("QueryView.XDQL_VDOC_NESTED")); //$NON-NLS-1$
+		virtualDocumentNested.setText(Messages.getString("QueryView.XDQL_VDOC_NESTED")); //$NON-NLS-1$
 
 		useLowerCase = new Button(optXDQL, SWT.CHECK);
 		useLowerCase.setText(Messages.getString("QueryView.XDQL_USE_LOWER")); //$NON-NLS-1$
 
 		repeatingAsNested = new Button(optXDQL, SWT.CHECK);
-		repeatingAsNested.setText(Messages
-				.getString("QueryView.XDQL_REPEATING_NESTED")); //$NON-NLS-1$
+		repeatingAsNested.setText(Messages.getString("QueryView.XDQL_REPEATING_NESTED")); //$NON-NLS-1$
 
 		repeatingIncludeIndex = new Button(optXDQL, SWT.CHECK);
-		repeatingIncludeIndex.setText(Messages
-				.getString("QueryView.XDQL_REPEATING_INDEX")); //$NON-NLS-1$
+		repeatingIncludeIndex.setText(Messages.getString("QueryView.XDQL_REPEATING_INDEX")); //$NON-NLS-1$
 
 		metaDataAsAttributes = new Button(optXDQL, SWT.CHECK);
-		metaDataAsAttributes.setText(Messages
-				.getString("QueryView.XDQL_METADATA_ATTRS")); //$NON-NLS-1$
+		metaDataAsAttributes.setText(Messages.getString("QueryView.XDQL_METADATA_ATTRS")); //$NON-NLS-1$
 
 		contentAsLink = new Button(optXDQL, SWT.CHECK);
-		contentAsLink
-				.setText(Messages.getString("QueryView.XDQL_CONTENT_LINK")); //$NON-NLS-1$
+		contentAsLink.setText(Messages.getString("QueryView.XDQL_CONTENT_LINK")); //$NON-NLS-1$
 
 		includeContent = new Button(optXDQL, SWT.CHECK);
-		includeContent.setText(Messages
-				.getString("QueryView.XDQL_INCLUDE_CONTENT")); //$NON-NLS-1$
+		includeContent.setText(Messages.getString("QueryView.XDQL_INCLUDE_CONTENT")); //$NON-NLS-1$
 
 		ExpandItem expItem = new ExpandItem(xdqlExpandBar, SWT.NONE, 0);
 		expItem.setText("XDQL Options");
@@ -1040,7 +1039,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Creates the check boxes that set XDQL options.
-	 * 
+	 *
 	 * @param parent
 	 */
 	protected void createDQLOptions(Composite parent) {
@@ -1049,8 +1048,7 @@ public class QueryView extends ViewPart {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 4;
 		optParent.setLayout(layout);
-		optParent.setToolTipText(Messages
-				.getString("QueryView.TTIP_DQL_QUERY_OPT")); //$NON-NLS-1$
+		optParent.setToolTipText(Messages.getString("QueryView.TTIP_DQL_QUERY_OPT")); //$NON-NLS-1$
 
 		/*
 		 * FormData fd = new FormData(); fd.top = new FormAttachment(queryText,
@@ -1067,8 +1065,7 @@ public class QueryView extends ViewPart {
 		execQuery.setText(Messages.getString("QueryView.DQL_EXEC_QUERY")); //$NON-NLS-1$
 
 		execReadQuery = new Button(optParent, SWT.RADIO);
-		execReadQuery.setText(Messages
-				.getString("QueryView.DQL_EXEC_READ_QUERY")); //$NON-NLS-1$
+		execReadQuery.setText(Messages.getString("QueryView.DQL_EXEC_READ_QUERY")); //$NON-NLS-1$
 
 		applyQuery = new Button(optParent, SWT.RADIO);
 		applyQuery.setText(Messages.getString("QueryView.DQL_APPLY_QUERY")); //$NON-NLS-1$
@@ -1098,35 +1095,28 @@ public class QueryView extends ViewPart {
 		 */
 
 		followAssembly = new Button(optXDQL, SWT.CHECK);
-		followAssembly.setText(Messages
-				.getString("QueryView.XDQL_FOLLOW_ASSEM")); //$NON-NLS-1$
+		followAssembly.setText(Messages.getString("QueryView.XDQL_FOLLOW_ASSEM")); //$NON-NLS-1$
 
 		virtualDocumentNested = new Button(optXDQL, SWT.CHECK);
-		virtualDocumentNested.setText(Messages
-				.getString("QueryView.XDQL_VDOC_NESTED")); //$NON-NLS-1$
+		virtualDocumentNested.setText(Messages.getString("QueryView.XDQL_VDOC_NESTED")); //$NON-NLS-1$
 
 		useLowerCase = new Button(optXDQL, SWT.CHECK);
 		useLowerCase.setText(Messages.getString("QueryView.XDQL_USE_LOWER")); //$NON-NLS-1$
 
 		repeatingAsNested = new Button(optXDQL, SWT.CHECK);
-		repeatingAsNested.setText(Messages
-				.getString("QueryView.XDQL_REPEATING_NESTED")); //$NON-NLS-1$
+		repeatingAsNested.setText(Messages.getString("QueryView.XDQL_REPEATING_NESTED")); //$NON-NLS-1$
 
 		repeatingIncludeIndex = new Button(optXDQL, SWT.CHECK);
-		repeatingIncludeIndex.setText(Messages
-				.getString("QueryView.XDQL_REPEATING_INDEX")); //$NON-NLS-1$
+		repeatingIncludeIndex.setText(Messages.getString("QueryView.XDQL_REPEATING_INDEX")); //$NON-NLS-1$
 
 		metaDataAsAttributes = new Button(optXDQL, SWT.CHECK);
-		metaDataAsAttributes.setText(Messages
-				.getString("QueryView.XDQL_METADATA_ATTRS")); //$NON-NLS-1$
+		metaDataAsAttributes.setText(Messages.getString("QueryView.XDQL_METADATA_ATTRS")); //$NON-NLS-1$
 
 		contentAsLink = new Button(optXDQL, SWT.CHECK);
-		contentAsLink
-				.setText(Messages.getString("QueryView.XDQL_CONTENT_LINK")); //$NON-NLS-1$
+		contentAsLink.setText(Messages.getString("QueryView.XDQL_CONTENT_LINK")); //$NON-NLS-1$
 
 		includeContent = new Button(optXDQL, SWT.CHECK);
-		includeContent.setText(Messages
-				.getString("QueryView.XDQL_INCLUDE_CONTENT")); //$NON-NLS-1$
+		includeContent.setText(Messages.getString("QueryView.XDQL_INCLUDE_CONTENT")); //$NON-NLS-1$
 
 		scrComp.setMinWidth(optXDQL.computeSize(SWT.DEFAULT, SWT.DEFAULT).x);
 		scrComp.setMinHeight(optXDQL.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
@@ -1140,7 +1130,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Creates the buttons that the user presses to execute the query.
-	 * 
+	 *
 	 * @param parent
 	 */
 	protected void createActionButtons(Composite parent) {
@@ -1230,17 +1220,17 @@ public class QueryView extends ViewPart {
 		 * new FormAttachment(100, -5); fd3.left = new
 		 * FormAttachment(runXDQLAsync, 5); fd3.right = new FormAttachment(96,
 		 * -5); resultsSummary.setLayoutData(fd3);
-		 * 
+		 *
 		 * Button stopQuery = new Button(butParent,SWT.PUSH | SWT.FLAT);
 		 * stopQuery.setImage(PluginHelper.getImage("stop.gif"));
 		 * stopQuery.addSelectionListener(new SelectionListener(){
-		 * 
+		 *
 		 * public void widgetDefaultSelected(SelectionEvent e) {
 		 * widgetSelected(e); }
-		 * 
+		 *
 		 * public void widgetSelected(SelectionEvent e) { if(dqlQueryExec !=
 		 * null) { dqlQueryExec.cancel(); } }
-		 * 
+		 *
 		 * }); FormData fdStop = new FormData(); fdStop.top = new
 		 * FormAttachment(0,3); fdStop.bottom = new FormAttachment(100,-3);
 		 * fdStop.left = new FormAttachment(resultsSummary,5); fdStop.right =
@@ -1290,8 +1280,7 @@ public class QueryView extends ViewPart {
 
 		sumParent.setLayout(new FormLayout());
 
-		resultsSummary = new Text(sumParent, SWT.READ_ONLY | SWT.MULTI
-				| SWT.V_SCROLL | SWT.WRAP);
+		resultsSummary = new Text(sumParent, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
 /*
 		resultsSummary.setBackground(super.getSite().getShell().getDisplay()
 				.getSystemColor(SWT.COLOR_INFO_BACKGROUND));
@@ -1329,8 +1318,7 @@ public class QueryView extends ViewPart {
 	}
 
 	protected void createDQLResultsTable(Composite parent) {
-		resultsTable = new Table(parent, SWT.SINGLE | SWT.H_SCROLL
-				| SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
+		resultsTable = new Table(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
 		resultsTable.setHeaderVisible(true);
 		resultsTable.setLinesVisible(true);
 
@@ -1368,8 +1356,7 @@ public class QueryView extends ViewPart {
 	protected void executeDQL(boolean async) {
 		String docbaseName = PluginState.getDocbase();
 		if ((docbaseName == null) || (docbaseName.length() == 0)) {
-			MessageDialog.openWarning(getSite().getShell(),
-					Messages.getString("QueryView.DLG_NO_REPO"), //$NON-NLS-1$
+			MessageDialog.openWarning(getSite().getShell(), Messages.getString("QueryView.DLG_NO_REPO"), //$NON-NLS-1$
 					Messages.getString("QueryView.DLG_MSG_NO_REPO")); //$NON-NLS-1$
 			return;
 		}
@@ -1393,16 +1380,14 @@ public class QueryView extends ViewPart {
 			}
 
 			if (async) {
-				FileDialog fd = new FileDialog(this.getSite().getShell(),
-						SWT.SAVE);
+				FileDialog fd = new FileDialog(this.getSite().getShell(), SWT.SAVE);
 				fd.setFilterExtensions(new String[] { ".xls" });
 				fd.setText("Choose File to Save Query Results");
 				String filename = fd.open();
 				if (filename != null) {
 					DQLQueryJob job = new DQLQueryJob(this, queryStr, queryType);
 					job.setResultsFile(filename);
-					job.setProperty(IProgressConstants.KEEP_PROPERTY,
-							Boolean.TRUE);
+					job.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 					job.setUser(true);
 					job.setPriority(Job.LONG);
 					job.schedule();
@@ -1420,10 +1405,8 @@ public class QueryView extends ViewPart {
 				this.computeResultsHeight();
 
 				dqlQueryExec = new DQLQueryExecutor(queryStr, queryType);
-				dqlQueryExec.setUIControls(resultsTable, resultsViewer,
-						resultsLayout, resultsSummary);
-				dqlQueryExec.setProperty(IProgressConstants.KEEP_PROPERTY,
-						Boolean.TRUE);
+				dqlQueryExec.setUIControls(resultsTable, resultsViewer, resultsLayout, resultsSummary);
+				dqlQueryExec.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 				// dqlQueryExec.setUser(true);
 				dqlQueryExec.schedule();
 				this.addQueryToHistory(queryStr);
@@ -1431,8 +1414,7 @@ public class QueryView extends ViewPart {
 			}
 		} catch (Exception ex) {
 			DfLogger.warn(this, "Error preparing dql results", null, ex); //$NON-NLS-1$
-			MessageDialog.openError(this.getSite().getShell(),
-					Messages.getString("QueryView.DLG_ERR_RESULTS_PREP"), //$NON-NLS-1$
+			MessageDialog.openError(this.getSite().getShell(), Messages.getString("QueryView.DLG_ERR_RESULTS_PREP"), //$NON-NLS-1$
 					"Error: " + ex.getMessage()); //$NON-NLS-1$
 		}
 
@@ -1442,8 +1424,7 @@ public class QueryView extends ViewPart {
 		queryText.setText(queryStr);
 	}
 
-	public void setupDQLResults(String queryStr, String[] columnNames,
-			LinkedList resultsList, long execTime) {
+	public void setupDQLResults(String queryStr, String[] columnNames, LinkedList resultsList, long execTime) {
 		int attrCnt = columnNames.length;
 
 		// should dispose old columns as query will fill new
@@ -1500,7 +1481,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Gets the column names to be used in creating the results table
-	 * 
+	 *
 	 * @param coll
 	 * @return
 	 */
@@ -1525,8 +1506,7 @@ public class QueryView extends ViewPart {
 	protected void executeXDQL(boolean async) {
 		String docbaseName = PluginState.getDocbase();
 		if ((docbaseName == null) || (docbaseName.length() == 0)) {
-			MessageDialog.openWarning(getSite().getShell(),
-					"Repository Authentication", //$NON-NLS-1$
+			MessageDialog.openWarning(getSite().getShell(), "Repository Authentication", //$NON-NLS-1$
 					"Cannot find a repository against which to run the query"); //$NON-NLS-1$
 			return;
 		}
@@ -1558,26 +1538,21 @@ public class QueryView extends ViewPart {
 			populateXDQLOptions(queryObj);
 
 			if (async) {
-				FileDialog fd = new FileDialog(this.getSite().getShell(),
-						SWT.SAVE);
+				FileDialog fd = new FileDialog(this.getSite().getShell(), SWT.SAVE);
 				fd.setFilterExtensions(new String[] { ".xml" });
 				fd.setText("Choose File to Save XDQL Query Results");
 				String filename = fd.open();
 				if (filename != null) {
-					XDQLQueryJob job = new XDQLQueryJob(queryObj, queryType,
-							filename);
-					job.setProperty(IProgressConstants.KEEP_PROPERTY,
-							Boolean.TRUE);
+					XDQLQueryJob job = new XDQLQueryJob(queryObj, queryType, filename);
+					job.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 					job.setUser(true);
 					job.setPriority(Job.LONG);
 					job.schedule();
 				}
 			} else {
 
-				XDQLQueryExecutor xdqlExec = new XDQLQueryExecutor(queryObj,
-						queryType);
-				IProgressService progServ = PlatformUI.getWorkbench()
-						.getProgressService();
+				XDQLQueryExecutor xdqlExec = new XDQLQueryExecutor(queryObj, queryType);
+				IProgressService progServ = PlatformUI.getWorkbench().getProgressService();
 				long beginTime = System.currentTimeMillis();
 				progServ.busyCursorWhile(xdqlExec);
 				long endTime = System.currentTimeMillis();
@@ -1586,8 +1561,7 @@ public class QueryView extends ViewPart {
 				double timeInSec = (double) ((endTime - beginTime) / 1000);
 				StringBuffer bufSummary = new StringBuffer(32);
 				bufSummary.append("Approximate Execution Time:").append( //$NON-NLS-1$
-						String.valueOf((endTime - beginTime)))
-						.append(" milliseconds"); //$NON-NLS-1$            
+						String.valueOf((endTime - beginTime))).append(" milliseconds"); //$NON-NLS-1$
 				resultsSummary.setText(bufSummary.toString());
 
 				resultsLayout.topControl = xdqlResults;
@@ -1631,7 +1605,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Adds a query to the query history
-	 * 
+	 *
 	 * @param query
 	 */
 	protected void addQueryToHistory(String query) {
@@ -1667,9 +1641,7 @@ public class QueryView extends ViewPart {
 		int arrLen = arrs.length;
 		if ((arrLen > 0) && (new DfId(arrs[0])).isObjectId()) {
 			if (arrLen > 1) {
-				SimpleListDialog sld = new SimpleListDialog(getSite()
-						.getShell(), arrs,
-						Messages.getString("QueryView.DLG_OBJ_ID_SEL")); //$NON-NLS-1$
+				SimpleListDialog sld = new SimpleListDialog(getSite().getShell(), arrs, Messages.getString("QueryView.DLG_OBJ_ID_SEL")); //$NON-NLS-1$
 				int status = sld.open();
 				if (status == SimpleListDialog.OK) {
 					String[] sel = sld.getSelection();
@@ -1702,7 +1674,7 @@ public class QueryView extends ViewPart {
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 
 		super.init(site, memento);
-		Preferences prefs = DevprogPlugin.getDefault().getPluginPreferences();
+		IPreferenceStore prefs = DevprogPlugin.getDefault().getPreferenceStore();
 		String favQueries = prefs.getString(KEY_FAV_QUERIES);
 		if (favQueries != null) {
 			restoreFavoriteQueries(favQueries);
@@ -1711,11 +1683,10 @@ public class QueryView extends ViewPart {
 
 	public void saveState(IMemento memento) {
 		super.saveState(memento);
-		Preferences prefs = DevprogPlugin.getDefault().getPluginPreferences();
+		IPreferenceStore prefs = DevprogPlugin.getDefault().getPreferenceStore();
 		prefs.setValue(KEY_FAV_QUERIES, serializeFavoriteQueries());
 
-		prefs.setValue(enable_kb_hist_nav,
-				this.enableKeyboardScroll.isChecked());
+		prefs.setValue(enable_kb_hist_nav, this.enableKeyboardScroll.isChecked());
 
 	}
 
@@ -1758,6 +1729,10 @@ public class QueryView extends ViewPart {
 		}
 	}
 
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
+	}
+
 	class FavNameValidator implements IInputValidator {
 		SortedMap favs = null;
 
@@ -1767,8 +1742,7 @@ public class QueryView extends ViewPart {
 
 		public String isValid(String newText) {
 			if (favs.containsKey(newText.trim())) {
-				return Messages
-						.getString("QueryView.ERR_DUPLICATE_FAVQUERY_NAME"); //$NON-NLS-1$
+				return Messages.getString("QueryView.ERR_DUPLICATE_FAVQUERY_NAME"); //$NON-NLS-1$
 			}
 			return null;
 		}
@@ -1830,15 +1804,13 @@ public class QueryView extends ViewPart {
 	}
 
 	private void initQueryKeywords() {
-		String[] keywords = Messages.getString("QueryView.QUERY_KEYWORDS")
-				.split(",");
+		String[] keywords = Messages.getString("QueryView.QUERY_KEYWORDS").split(",");
 		for (int i = 0; i < keywords.length; i++) {
 			queryKeywords.add(keywords[i].toLowerCase());
 		}
 
 		// Navy blue
-		keywordsColor = new Color(super.getSite().getShell().getDisplay(), 0,
-				0, 128);
+		keywordsColor = new Color(super.getSite().getShell().getDisplay(), 0, 0, 128);
 	}
 
 	private boolean isQueryToken(String tokCh) {
@@ -1864,8 +1836,7 @@ public class QueryView extends ViewPart {
 
 	private void initTypeList() {
 		if (typeColor == null) {
-			typeColor = new Color(super.getSite().getShell().getDisplay(), 0,
-					138, 189);
+			typeColor = new Color(super.getSite().getShell().getDisplay(), 0, 138, 189);
 		}
 
 		String repo = PluginState.getDocbase();
@@ -1880,7 +1851,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Checks if the specified string represents a type name
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -1899,7 +1870,7 @@ public class QueryView extends ViewPart {
 
 	/**
 	 * Gets the style range for type names
-	 * 
+	 *
 	 * @param offset
 	 * @param length
 	 * @return

@@ -48,20 +48,21 @@ public class RCPApp implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 
-		// System.out.println(new File("").getAbsolutePath());
-
 		WorkbenchAdvisor wbenchAdvisor = new RcpWorkbenchAdvisor();
 		Display disp = PlatformUI.createDisplay();
+
+		DFCConfigurationHelper.configureDfcPropertiesFile();
+
 		int rcode = DFCConfigurationHelper.configureDfcJars(false);
+
 		if (rcode < 0) {
 			return IApplication.EXIT_RESTART;
 		}
-		try {
 
+		try {
 			int returnCode = PlatformUI.createAndRunWorkbench(disp, wbenchAdvisor);
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;
-
 			} else {
 				return IApplication.EXIT_OK;
 			}

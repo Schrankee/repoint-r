@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -26,8 +25,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ ï¿½*ï¿½
+ ï¿½*******************************************************************************/
 
 /*
  * Created on Dec 12, 2005
@@ -46,14 +45,14 @@ import org.eclipse.ui.part.EditorPart;
 public class TestComposite extends EditorPart {
 
 	public static final String ID = "com.documentum.devprog.eclipse.test.TestComposite"; // TODO
-																							// Needs
-																							// to
-																							// be
-																							// whatever
-																							// is
-																							// mentioned
-																							// in
-																							// plugin.xml
+	// Needs
+	// to
+	// be
+	// whatever
+	// is
+	// mentioned
+	// in
+	// plugin.xml
 	private Composite top = null;
 
 	public void doSave(IProgressMonitor monitor) {
@@ -62,8 +61,7 @@ public class TestComposite extends EditorPart {
 	public void doSaveAs() {
 	}
 
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 	}
 
 	public boolean isDirty() {
@@ -80,4 +78,7 @@ public class TestComposite extends EditorPart {
 	public void setFocus() {
 	}
 
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
+	}
 }

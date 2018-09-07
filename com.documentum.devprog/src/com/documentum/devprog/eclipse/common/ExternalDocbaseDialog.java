@@ -19,7 +19,8 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ExternalDocbaseDialog extends Dialog {
 
-	private Text docbrokerHost;
+	//private Text docbrokerHost;
+	private Combo docbrokerHost;
 	private Combo docbaseList;
 	private Text loginText;
 	private Text passText;
@@ -30,6 +31,7 @@ public class ExternalDocbaseDialog extends Dialog {
 
 	/**
 	 * Constructor.
+	 *
 	 * @param parentShell A shell
 	 */
 	protected ExternalDocbaseDialog(Shell parentShell) {
@@ -51,7 +53,10 @@ public class ExternalDocbaseDialog extends Dialog {
 		label.setLayoutData(PluginHelper.getFormData(5, 20, 0, 25));
 		label.setAlignment(SWT.CENTER);
 
-		docbrokerHost = new Text(composite, SWT.BORDER);
+		//docbrokerHost = new Text(composite, SWT.BORDER);
+		docbrokerHost = new Combo(composite, SWT.NONE);
+		docbrokerHost.setItems(new String[] { "Alpha", "Bravo", "Charlie" });
+
 		docbrokerHost.setLayoutData(PluginHelper.getFormData(5, 20, 25, 80));
 
 		Button addExternalDocbase = new Button(composite, SWT.BORDER);

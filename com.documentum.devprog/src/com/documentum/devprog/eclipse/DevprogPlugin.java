@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -37,13 +37,10 @@
  */
 package com.documentum.devprog.eclipse;
 
-import java.net.URL;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.service.prefs.Preferences;
 
 /**
  * Main plugin class.
@@ -57,28 +54,28 @@ public class DevprogPlugin extends AbstractUIPlugin {
 
 	// Resource bundle.
 	private ResourceBundle resourceBundle;
-	public static String PLUGIN_ID = "com.documentum.devprog.eclipsePlugin";
-	public static String VIEW_EXT_ID = PLUGIN_ID + ".viewExtension";
-	public static String PERSPECTIVE_EXT_ID = "com.documentum.devprog.eclipsePlugin.perspectivesExtension";
-	public static String PERSPECTIVE_ID = PERSPECTIVE_EXT_ID + ".dmPerspective";
+	public static final String PLUGIN_ID = "com.documentum.devprog.eclipsePlugin";
+	public static final String VIEW_EXT_ID = PLUGIN_ID + ".viewExtension";
+//	public static final String PERSPECTIVE_EXT_ID = "com.documentum.devprog.eclipsePlugin.perspectivesExtension";
+//	public static final String PERSPECTIVE_ID = PERSPECTIVE_EXT_ID + ".dmPerspective";
 
 	// ////////View Ids
-	public final static String TREE_VIEW_ID = VIEW_EXT_ID + ".treeView";
-	public final static String DOCBASE_ITEM_LIST_VIEW_ID = VIEW_EXT_ID + ".docbaseItemListView";
-	final public static String TYPE_VIEW_ID = VIEW_EXT_ID + ".typeTreeView";
+	public static final String TREE_VIEW_ID = VIEW_EXT_ID + ".treeView";
+	public static final String DOCBASE_ITEM_LIST_VIEW_ID = VIEW_EXT_ID + ".docbaseItemListView";
+	public static final String TYPE_VIEW_ID = VIEW_EXT_ID + ".typeTreeView";
 	public static final String TRACE_VIEW_ID = VIEW_EXT_ID + ".traceView";
-	final public static String QUERY_VIEW_ID = VIEW_EXT_ID + ".queryView";
-	public final static String PROP_VIEW_EXT_ID = PLUGIN_ID + ".propViewAction";
+	public static final String QUERY_VIEW_ID = VIEW_EXT_ID + ".queryView";
+	public static final String PROP_VIEW_EXT_ID = PLUGIN_ID + ".propViewAction";
 
 	/**
 	 * Id of the properties view.
 	 */
-	public static String PROP_VIEW_ID = VIEW_EXT_ID + ".propertiesView";
-	final public static String QUICK_TYPE_HIERARCHY_VIEW_ID = VIEW_EXT_ID + ".quickTypeHierarchyView";
+	public static final String PROP_VIEW_ID = VIEW_EXT_ID + ".propertiesView";
+	public static final String QUICK_TYPE_HIERARCHY_VIEW_ID = VIEW_EXT_ID + ".quickTypeHierarchyView";
 
 	// ////Extension IDs
-	public final static String REPO_TREE_EXT_ID = PLUGIN_ID + ".repoTreeAction";
-	final public static String TYPE_VIEW_EXT_ID = PLUGIN_ID + ".typeTreeAction";
+	public static final String REPO_TREE_EXT_ID = PLUGIN_ID + ".repoTreeAction";
+	public static final String TYPE_VIEW_EXT_ID = PLUGIN_ID + ".typeTreeAction";
 
 	/**
 	 * The constructor.
@@ -93,7 +90,6 @@ public class DevprogPlugin extends AbstractUIPlugin {
 */
 		try {
 			resourceBundle = ResourceBundle.getBundle("com.documentum.devprog.DevprogPluginResources");
-
 		} catch (MissingResourceException x) {
 			resourceBundle = null;
 		}
@@ -101,27 +97,29 @@ public class DevprogPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the shared instance.
+	 * @return the shared instance of this plugin.
 	 */
 	public static DevprogPlugin getDefault() {
 		return plugin;
 	}
 
 	// does not seem to work. Kept it for reference -aashish
-	protected void configureLog4j() {
-
-		try {
-			URL installURL = getDefault().getDescriptor().getInstallURL();
-			URL url = new URL(installURL, "config/log4j.properties");
-			// url = Platform.r
-			PropertyConfigurator.configure(url);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
+//	protected void configureLog4j() {
+//
+//		try {
+//			URL installURL = getDefault().getDescriptor().getInstallURL();
+//			URL url = new URL(installURL, "config/log4j.properties");
+//			// url = Platform.r
+//			PropertyConfigurator.configure(url);
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
+//	}
+//
 	/**
-	 * Returns the string from the plugin's resource bundle, or 'key' if not
-	 * found.
+	 * Returns the string from the plugin's resource bundle, or key if not found.
+	 * @param key key to be found
+	 * @return the string from the plugin's resource bundle, or key value if not found.
 	 */
 	public static String getResourceString(String key) {
 		ResourceBundle bundle = DevprogPlugin.getDefault().getResourceBundle();
@@ -133,7 +131,7 @@ public class DevprogPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the plugin's resource bundle,
+	 * Returns the plugin's resource bundle.
 	 */
 	public ResourceBundle getResourceBundle() {
 		return resourceBundle;

@@ -10,9 +10,19 @@ import com.documentum.devprog.eclipse.common.PluginHelper;
 import com.documentum.devprog.eclipse.common.PluginState;
 import com.documentum.devprog.eclipse.common.PreferenceConstants;
 import com.documentum.fc.common.DfLogger;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.jface.action.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
@@ -35,16 +45,17 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(patil_aashish@emc.com)
  */
-public class DocbaseItemListView extends ViewPart implements
-		IPropertyChangeListener {
+public class DocbaseItemListView extends ViewPart implements IPropertyChangeListener {
 
 	private String folderId = null;
 
@@ -80,7 +91,7 @@ public class DocbaseItemListView extends ViewPart implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
 	 * .Composite)
@@ -97,8 +108,7 @@ public class DocbaseItemListView extends ViewPart implements
 		createPopupMenu(listViewer.getListViewer());
 		createToolbar();
 
-		DevprogPlugin.getDefault().getPluginPreferences()
-				.addPropertyChangeListener(this);
+		DevprogPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(this);
 	}
 
 	private void createSearchBox(Composite parent) {
@@ -118,8 +128,7 @@ public class DocbaseItemListView extends ViewPart implements
 		txtSearch.setBackground(new Color(Display.getDefault(), 250, 250, 254));
 		// txtSearch.setBackground(parent.getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		Font oldFont = txtSearch.getFont();
-		Font newFont = PluginHelper.changeFontStyle(txtSearch.getDisplay(),
-				oldFont, SWT.BOLD);
+		Font newFont = PluginHelper.changeFontStyle(txtSearch.getDisplay(), oldFont, SWT.BOLD);
 		txtSearch.setFont(newFont);
 
 		// txtSearch.setSize(800,300);
@@ -140,10 +149,7 @@ public class DocbaseItemListView extends ViewPart implements
 					// System.out.println("selNode: " +
 					// DocbaseItemListView.this.getSelectedItem());
 					queryJobTimer = new Timer();
-					queryJobTimer.schedule(
-							new QueryJobTimerTask(txtSearch.getText(),
-									PluginHelper.getRepoTree()
-											.getSelectedNode()), 1500);
+					queryJobTimer.schedule(new QueryJobTimerTask(txtSearch.getText(), PluginHelper.getRepoTree().getSelectedNode()), 1500);
 				}
 
 			}
@@ -165,51 +171,51 @@ public class DocbaseItemListView extends ViewPart implements
 	private void createTable(Composite parent) {
 		/*
 		 * listViewer = new TableViewer(parent);
-		 * 
+		 *
 		 * //listViewer.getTable().setLinesVisible(true);
 		 * listViewer.getTable().setHeaderVisible(true);
-		 * 
+		 *
 		 * //listViewer.setColumnProperties(getVisibleColumns()); Table tbl =
 		 * listViewer.getTable();
-		 * 
+		 *
 		 * //TODO Have to make this a class ColumnSpecs. This will make it
 		 * simpler to add/remove columns TableColumn tc = new
 		 * TableColumn(tbl,SWT.LEFT,0); tc.setText("Name"); tc.setWidth(200);
 		 * tc.setResizable(true);
-		 * 
+		 *
 		 * TableColumn tc2 = new TableColumn(tbl,SWT.LEFT,1);
 		 * tc2.setText("Modified"); tc2.setWidth(100); tc2.setResizable(true);
-		 * 
+		 *
 		 * TableColumn tc3 = new TableColumn(tbl,SWT.LEFT,2);
 		 * tc3.setText("Size"); tc3.setWidth(120); tc3.setResizable(true);
-		 * 
+		 *
 		 * TableColumn tc5 = new TableColumn(tbl,SWT.LEFT,3);
 		 * tc5.setText("Content Type"); tc5.setWidth(120);
 		 * tc5.setResizable(true);
-		 * 
+		 *
 		 * TableColumn tc4 = new TableColumn(tbl,SWT.LEFT,4);
 		 * tc4.setText("Modifier"); tc4.setWidth(120); tc4.setResizable(true);
-		 * 
+		 *
 		 * FormData fd = new FormData(); fd.left = new FormAttachment(0,5);
 		 * fd.right = new FormAttachment(100,-5); fd.top = new
 		 * FormAttachment(searchComposite,5); fd.bottom = new
 		 * FormAttachment(100,-5); listViewer.getTable().setLayoutData(fd);
-		 * 
+		 *
 		 * labelProvider = new DocbaseItemListLabelProvider();
 		 * listViewer.setLabelProvider(labelProvider);
-		 * 
+		 *
 		 * listViewer.setContentProvider(new IStructuredContentProvider(){
-		 * 
+		 *
 		 * public Object[] getElements(Object inputElement) { return new
 		 * Object[]{}; }
-		 * 
+		 *
 		 * public void dispose() {}
-		 * 
+		 *
 		 * public void inputChanged(Viewer viewer, Object oldInput, Object
 		 * newInput) {}
-		 * 
+		 *
 		 * });
-		 * 
+		 *
 		 * listViewer.addDoubleClickListener(new
 		 * DocbaseItemListEventListener());
 		 */
@@ -227,7 +233,7 @@ public class DocbaseItemListView extends ViewPart implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
@@ -250,7 +256,7 @@ public class DocbaseItemListView extends ViewPart implements
 		/*
 		 * ListViewHelper.resetCollections();
 		 * ListViewHelper.showSingleViewFolderContentsAll(objId);
-		 * 
+		 *
 		 * IDfCollection folderColl = ListViewHelper.getFolderCollection();
 		 * IDfCollection docColl = ListViewHelper.getDocumentCollection();
 		 */
@@ -298,11 +304,9 @@ public class DocbaseItemListView extends ViewPart implements
 
 	/**
 	 * Create the toolbar for the view.
-	 * 
 	 */
 	protected void createToolbar() {
-		IToolBarManager tbMgr = getViewSite().getActionBars()
-				.getToolBarManager();
+		IToolBarManager tbMgr = getViewSite().getActionBars().getToolBarManager();
 
 		tbMgr.add(goBack);
 		tbMgr.add(goForward);
@@ -348,15 +352,13 @@ public class DocbaseItemListView extends ViewPart implements
 			}
 		}
 
-		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS
-				+ "-end"));
+		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS + "-end"));
 	}
 
 	private void createActions() {
 
 		dumpProperties = new DumpPropertiesAction(listViewer.getListViewer());
-		dumpProperties
-				.setImageDescriptor(PluginHelper.getImageDesc("info.gif"));
+		dumpProperties.setImageDescriptor(PluginHelper.getImageDesc("info.gif"));
 		dumpProperties.setText("Show Properties");
 
 		goBack = new Action() {
@@ -377,18 +379,15 @@ public class DocbaseItemListView extends ViewPart implements
 				goForward();
 			}
 		};
-		goForward.setImageDescriptor(PluginHelper
-				.getImageDesc("forward_nav.gif"));
+		goForward.setImageDescriptor(PluginHelper.getImageDesc("forward_nav.gif"));
 	}
 
 	/**
 	 * Finds extensions to the tree view
-	 * 
 	 */
 	protected void findExtensions() {
 		IExtensionRegistry reg = Platform.getExtensionRegistry();
-		IExtensionPoint ep = reg
-				.getExtensionPoint(DevprogPlugin.REPO_TREE_EXT_ID);
+		IExtensionPoint ep = reg.getExtensionPoint(DevprogPlugin.REPO_TREE_EXT_ID);
 		IExtension[] extensions = ep.getExtensions();
 		repoExtensions = new ArrayList();
 		for (int i = 0; i < extensions.length; i++) {
@@ -396,8 +395,7 @@ public class DocbaseItemListView extends ViewPart implements
 			IConfigurationElement[] ce = ext.getConfigurationElements();
 			for (int j = 0; j < ce.length; j++) {
 				try {
-					RepoTreeExtension obj = (RepoTreeExtension) ce[j]
-							.createExecutableExtension("class");
+					RepoTreeExtension obj = (RepoTreeExtension) ce[j].createExecutableExtension("class");
 					String label = ce[j].getAttribute("label");
 					obj.setText(label);
 					// Commenting these out as there is no guaratee that the
@@ -423,13 +421,12 @@ public class DocbaseItemListView extends ViewPart implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange
-	 * (org.eclipse.core.runtime.Preferences.PropertyChangeEvent)
+	 * org.eclipse.jface.util.IPropertyChangeListener#propertyChange
+	 * (org.eclipse.jface.util.Preferences.PropertyChangeEvent)
 	 */
-	public void propertyChange(
-			org.eclipse.core.runtime.Preferences.PropertyChangeEvent event) {
+	public void propertyChange(org.eclipse.jface.util.PropertyChangeEvent event) {
 		// System.out.println("propChanged");
 		String propName = event.getProperty();
 		// System.out.println("prop name: " + propName);
@@ -444,8 +441,7 @@ public class DocbaseItemListView extends ViewPart implements
 	}
 
 	DocbaseItem getSelectedItem() {
-		IStructuredSelection sel = (IStructuredSelection) listViewer
-				.getListViewer().getSelection();
+		IStructuredSelection sel = (IStructuredSelection) listViewer.getListViewer().getSelection();
 		// System.out.println("sel:isEmpty " + sel.isEmpty());
 		if (sel.isEmpty() == false) {
 			Object obj = sel.getFirstElement();
@@ -461,6 +457,10 @@ public class DocbaseItemListView extends ViewPart implements
 	public void clearContents() {
 		listViewer.getListViewer().setInput(new Object());
 		this.setFolderId("00");
+	}
+
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
 	}
 
 	class QueryJobTimerTask extends TimerTask {
@@ -490,13 +490,14 @@ public class DocbaseItemListView extends ViewPart implements
 				if (selNode != null) {
 					typeQueryJob.setSelectedNode(selNode);
 				} else {
-					typeQueryJob.setFolderId(DocbaseItemListView.this
-							.getFolderId());
+					typeQueryJob.setFolderId(DocbaseItemListView.this.getFolderId());
 				}
 				typeQueryJob.schedule();
 			}
 		}
-	};
+	}
+
+	;
 
 	private void addToNavHistory(String objectId) {
 		this.navHistory.add(objectId);

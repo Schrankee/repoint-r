@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -31,7 +30,7 @@
 
 /*
  * Created on May 4, 2004
- * 
+ *
  * Documentum Developer Program 2004
  *
  */
@@ -75,12 +74,11 @@ import java.util.*;
 import java.util.List;
 
 /**
- * 
  * Shows the properties of a docbase object in a table. Similar to a properties
  * dump. It should be able to show any object type.
- * 
+ * <p>
  * Fields Shown: AttrName, AttrType, Value(if any).
- * 
+ *
  * @author Aashish Patil (aashish.patil@documentum.com)
  */
 public class PropertiesView extends ViewPart {
@@ -190,9 +188,7 @@ public class PropertiesView extends ViewPart {
 	protected Action editPropertyAction = null;
 
 	/**
-	 * If true only custom attributes are shown. Otherwise all attributes are
-	 * shown.
-	 * 
+	 * If true only custom attributes are shown. Otherwise all attributes are shown.
 	 */
 	private boolean showOnlyCustom = false;
 
@@ -209,12 +205,9 @@ public class PropertiesView extends ViewPart {
 			for (int i = 0; i < attrs.length; i++) {
 				highlightAttrs.add(attrs[i]);
 			}
-
 		} catch (MissingResourceException mre) {
-			DfLogger.warn(PropertiesView.class.getName(),
-					"Error getting resource bundle", null, mre);
+			DfLogger.warn(PropertiesView.class.getName(), "Error getting resource bundle", null, mre);
 		}
-
 	}
 
 	/**
@@ -222,18 +215,14 @@ public class PropertiesView extends ViewPart {
 	 * of an object 2 => View is currently showing attribute info of a type.
 	 */
 	protected final int OBJ_PROP_VIEW = 1;
-
 	protected final int TYPE_VIEW = 2;
-
 	protected int CURRENT_VIEW = OBJ_PROP_VIEW;
-
 	private IDfPersistentObject persisObj;
-
 	private String currentDocbase;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets
 	 * .Composite)
@@ -256,7 +245,7 @@ public class PropertiesView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.IWorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
@@ -265,7 +254,7 @@ public class PropertiesView extends ViewPart {
 
 	/**
 	 * Sets the id of the object whose properties need to be dumped.
-	 * 
+	 *
 	 * @param objId
 	 */
 	public void setObjectId(String objId) {
@@ -275,7 +264,7 @@ public class PropertiesView extends ViewPart {
 
 	/**
 	 * Gets the object id of the object whose properties need to be dumped.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getObjectId() {
@@ -285,7 +274,6 @@ public class PropertiesView extends ViewPart {
 	/**
 	 * Creates the panel containing text box and button. These are used to enter
 	 * the object id and act on the input object id.
-	 * 
 	 */
 	protected void createObjIdInput() {
 		Composite inputComposite = new Composite(propComposite, SWT.NONE);
@@ -346,14 +334,14 @@ public class PropertiesView extends ViewPart {
 		 * already at bottom go to // top. if (curIndex ==
 		 * (objIdBox.getItemCount() - 1)) { objIdBox.select(0); } else {
 		 * objIdBox.select(curIndex + 1); }
-		 * 
+		 *
 		 * showDataInBox(); }
-		 * 
+		 *
 		 * public void widgetDefaultSelected(SelectionEvent se) {
 		 * widgetSelected(se); }
-		 * 
+		 *
 		 * }); butPrev.setLayoutData(PluginHelper.getGridData(1));
-		 * 
+		 *
 		 * Button butNext = new Button(inputComposite, SWT.PUSH | SWT.FLAT |
 		 * SWT.ARROW_RIGHT);
 		 * butNext.setImage(PluginHelper.getImage("forward_nav.gif"));
@@ -362,10 +350,10 @@ public class PropertiesView extends ViewPart {
 		 * objIdBox.getSelectionIndex(); if (curIndex == 0) { // if at top next
 		 * means to go down (cycle) objIdBox.select(objIdBox.getItemCount() -
 		 * 1); } else { objIdBox.select(curIndex - 1); } showDataInBox(); }
-		 * 
+		 *
 		 * public void widgetDefaultSelected(SelectionEvent se) {
 		 * widgetSelected(se); }
-		 * 
+		 *
 		 * }); butNext.setLayoutData(PluginHelper.getGridData(1));
 		 */
 	}
@@ -386,17 +374,14 @@ public class PropertiesView extends ViewPart {
 	/**
 	 * Creates the table and table viewer UI widgets. These do not contain any
 	 * data but are ready for displaying data.
-	 * 
 	 */
 	protected void createPropertiesTable() {
 		if (propComposite == null) {
 			return;
 		}
 
-		// /Table tree is used to maintain backwards compatibility with
-		// Eclipse 3.0
-		propTable = new TableTree(propComposite, SWT.H_SCROLL | SWT.V_SCROLL
-				| SWT.FULL_SELECTION | SWT.MULTI);
+		// /Table tree is used to maintain backwards compatibility with Eclipse 3.0
+		propTable = new TableTree(propComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
 		Table table = propTable.getTable();
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -428,8 +413,8 @@ public class PropertiesView extends ViewPart {
 	}
 
 	/**
-	 * Displays the properties for the object id specified using
-	 * 
+	 * Displays the properties for the object id specified.
+	 *
 	 * @param objId
 	 */
 
@@ -454,11 +439,9 @@ public class PropertiesView extends ViewPart {
 			return;
 		}
 
-		IStatusLineManager smgr = super.getViewSite().getActionBars()
-				.getStatusLineManager();
+		IStatusLineManager smgr = super.getViewSite().getActionBars().getStatusLineManager();
 		smgr.setMessage("Getting Properties");
-		smgr.getProgressMonitor().beginTask("Getting Properties",
-				IProgressMonitor.UNKNOWN);
+		smgr.getProgressMonitor().beginTask("Getting Properties", IProgressMonitor.UNKNOWN);
 
 		IDfSession sess = null;
 
@@ -470,8 +453,7 @@ public class PropertiesView extends ViewPart {
 			} else {
 				String docbaseName = PluginState.getDocbase();
 				if (PluginState.hasIdentity(docbaseName) == false) {
-					DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(this
-							.getSite().getShell());
+					DocbaseLoginDialog loginDlg = new DocbaseLoginDialog(this.getSite().getShell());
 					loginDlg.setDocbaseName(docbaseName);
 					loginDlg.open();
 				}
@@ -536,8 +518,7 @@ public class PropertiesView extends ViewPart {
 				if (attr.isRepeating()) {
 					int valCnt = persisObj.getValueCount(attr.getName());
 					for (int vc = 0; vc < valCnt; vc++) {
-						String val = persisObj.getRepeatingString(
-								attr.getName(), vc);
+						String val = persisObj.getRepeatingString(attr.getName(), vc);
 						ai.addValue(val);
 					}
 					ai.setRepeating(true);
@@ -597,15 +578,11 @@ public class PropertiesView extends ViewPart {
 			addTreeItems(ttiInt, intAttrLst);
 			// propTable.pack();
 
-			super.getViewSite().getActionBars().getStatusLineManager()
-					.getProgressMonitor().done();
-			super.getViewSite().getActionBars().getStatusLineManager()
-					.setMessage("Done Getting Properties");
+			super.getViewSite().getActionBars().getStatusLineManager().getProgressMonitor().done();
+			super.getViewSite().getActionBars().getStatusLineManager().setMessage("Done Getting Properties");
 		} catch (Exception ex) {
-			DfLogger.error(this, "Error showing properties for " + objId, null,
-					ex);
-			MessageDialog.openError(getSite().getShell(),
-					"Properties View Error", ex.getMessage());
+			DfLogger.error(this, "Error showing properties for " + objId, null, ex);
+			MessageDialog.openError(getSite().getShell(), "Properties View Error", ex.getMessage());
 		} finally {
 			if (sess != null) {
 				PluginState.releaseSession(sess);
@@ -616,8 +593,7 @@ public class PropertiesView extends ViewPart {
 
 	public void showTypeProperties(String typeName) {
 		if ((typeName == null) || (typeName.length() == 0)) {
-			DfLogger.warn(this, "No type name specified to view properties",
-					null, null);
+			DfLogger.warn(this, "No type name specified to view properties", null, null);
 			return;
 		}
 
@@ -639,8 +615,7 @@ public class PropertiesView extends ViewPart {
 			IDfType typeObj = sess.getType(typeName.toLowerCase());
 			if (typeObj == null) {
 				DfLogger.warn(this, "Invalid typename specified", null, null);
-				MessageDialog.openError(getSite().getShell(),
-						"Invalid Typename", "Invalid Typename specified");
+				MessageDialog.openError(getSite().getShell(), "Invalid Typename", "Invalid Typename specified");
 				return;
 			}
 
@@ -671,10 +646,8 @@ public class PropertiesView extends ViewPart {
 
 				attrInfo.setObject(false);
 				attrInfo.setName(typeObj.getRepeatingString("attr_name", i));
-				attrInfo.setRepeating(typeObj.getRepeatingBoolean(
-						"attr_repeating", i));
-				String dataType = getAttrTypeName(typeObj.getRepeatingInt(
-						"attr_type", i));
+				attrInfo.setRepeating(typeObj.getRepeatingBoolean("attr_repeating", i));
+				String dataType = getAttrTypeName(typeObj.getRepeatingInt("attr_type", i));
 				int attrLength = typeObj.getRepeatingInt("attr_length", i);
 				if (attrLength > 0) {
 					dataType += "(" + attrLength + ")";
@@ -725,8 +698,7 @@ public class PropertiesView extends ViewPart {
 
 		} catch (Exception ex) {
 			DfLogger.error(this, "Error displaying type info", null, ex);
-			MessageDialog.openError(getSite().getShell(),
-					"Type Properties Error", ex.getMessage());
+			MessageDialog.openError(getSite().getShell(), "Type Properties Error", ex.getMessage());
 		} finally {
 			if (sess != null) {
 				PluginState.releaseSession(sess);
@@ -737,28 +709,28 @@ public class PropertiesView extends ViewPart {
 
 	/**
 	 * Displays just the attributes of a docbase type.
-	 * 
+	 *
 	 * @param typeName
 	 */
 	/*
 	 * public void showTypeProperties(String typeName) { if((typeName == null)
 	 * || (typeName.length() == 0)) { DfLogger.warn(this,"No type name specified
 	 * to view properties",null,null); return; }
-	 * 
+	 *
 	 * if (propTableViewer == null) { return; }
-	 * 
+	 *
 	 * propTableViewer.getTable().removeAll();
-	 * 
+	 *
 	 * IDfSession sess = null; IDfSessionManager sessMgr = null; try { sess =
 	 * PluginState.getSession(); if(sess == null) { return; }
-	 * 
+	 *
 	 * IDfType typeObj = sess.getType(typeName); if(typeObj == null) {
 	 * DfLogger.warn(this,"Invalid typename specified",null,null); return; }
-	 * 
-	 * 
+	 *
+	 *
 	 * int attrCnt = typeObj.getInt("attr_count"); for (int i = 0; i < attrCnt;
 	 * i++) {
-	 * 
+	 *
 	 * AttrInfo attrInfo = new AttrInfo(); String row[] = new String[3];
 	 * //row[0] = attr.getName(); attrInfo.name =
 	 * typeObj.getRepeatingString("attr_name",i); boolean isRepeating =
@@ -766,13 +738,13 @@ public class PropertiesView extends ViewPart {
 	 * //row[1] = pObj.getAllRepeatingStrings(attr.getName(), ",");
 	 * attrInfo.type = "R"; } else { //row[1] = pObj.getString(attr.getName());
 	 * //attrInfo.value = pObj.getString(attr.getName()); attrInfo.type = "S"; }
-	 * 
+	 *
 	 * String dataType =
 	 * getAttrTypeName(typeObj.getRepeatingInt("attr_type",i)); int attrLength =
 	 * typeObj.getRepeatingInt("attr_length",i); if (attrLength > 0) { dataType
 	 * += "(" + attrLength + ")"; } //row[2] = dataType; attrInfo.value =
 	 * dataType;
-	 * 
+	 *
 	 * //ti.setText(row); propTableViewer.add(attrInfo); } //propTable.layout();
 	 * } catch (Exception ex) { ex.printStackTrace(); } finally { if (sess !=
 	 * null) { PluginState.releaseSession(sess); } } }
@@ -781,7 +753,7 @@ public class PropertiesView extends ViewPart {
 	/**
 	 * the IDfAttr.getType() method returns an integer code. This method maps
 	 * the code to string values using the constants defined in IDfAttr class.
-	 * 
+	 *
 	 * @param num
 	 * @return
 	 */
@@ -813,10 +785,8 @@ public class PropertiesView extends ViewPart {
 				saveData();
 			}
 		};
-		saveProperties.setImageDescriptor(PluginHelper
-				.getImageDesc(CommonConstants.SAVE_ICON));
-		saveProperties
-				.setToolTipText("Save Properties to a Tab-Separated File that can be Opened in MS Excel");
+		saveProperties.setImageDescriptor(PluginHelper.getImageDesc(CommonConstants.SAVE_ICON));
+		saveProperties.setToolTipText("Save Properties to a Tab-Separated File that can be Opened in MS Excel");
 
 		showOnlyCustomProperties = new Action("Show Only Custom Properties") {
 			public void run() {
@@ -868,8 +838,7 @@ public class PropertiesView extends ViewPart {
 				goForward();
 			}
 		};
-		goForward.setImageDescriptor(PluginHelper
-				.getImageDesc("forward_nav.gif"));
+		goForward.setImageDescriptor(PluginHelper.getImageDesc("forward_nav.gif"));
 
 		goBack = new Action("Go Back") {
 			public void run() {
@@ -891,14 +860,10 @@ public class PropertiesView extends ViewPart {
 						IDfType type = pObj.getType();
 						if (type.isSubTypeOf("dm_sysobject")) {
 							IDfSysObject sObj = (IDfSysObject) pObj;
-							String[] paths = PluginHelper
-									.getAllContainingFolderPaths(sObj);
+							String[] paths = PluginHelper.getAllContainingFolderPaths(sObj);
 							String selPath = "";
 							if (paths.length > 1) {
-								SimpleListDialog sld = new SimpleListDialog(
-										PropertiesView.this.getSite()
-												.getShell(), paths,
-										"Please select a folder");
+								SimpleListDialog sld = new SimpleListDialog(PropertiesView.this.getSite().getShell(), paths, "Please select a folder");
 								int status = sld.open();
 								if (status == SimpleListDialog.OK) {
 									selPath = sld.getSelection()[0];
@@ -906,54 +871,40 @@ public class PropertiesView extends ViewPart {
 							} else if (paths.length == 1) {
 								selPath = paths[0];
 							}
-							DfLogger.debug(this, "got Selected Path: "
-									+ selPath, null, null);
+							DfLogger.debug(this, "got Selected Path: " + selPath, null, null);
 							System.out.println("Selected PAth: " + selPath);
 
-							String fldrId = UtilityMethods.getIdByPath(sess,
-									selPath).getId();
-							DfLogger.debug(this, "Got Containing Folder Id: "
-									+ fldrId, null, null);
+							String fldrId = UtilityMethods.getIdByPath(sess, selPath).getId();
+							DfLogger.debug(this, "Got Containing Folder Id: " + fldrId, null, null);
 							System.out.println("Containing Fldr ID: " + fldrId);
 							PluginHelper.showFolderContents(fldrId, id.getId());
 						} else {
-							MessageDialog
-									.openInformation(PropertiesView.this
-											.getSite().getShell(), "Object Id",
-											"Not a SysObject or this object cannot be contained in a folder/cabinet");
+							MessageDialog.openInformation(PropertiesView.this.getSite().getShell(), "Object Id", "Not a SysObject or this object cannot be contained in a folder/cabinet");
 						}
 
 					} catch (Exception ex) {
-						MessageDialog.openError(PropertiesView.this.getSite()
-								.getShell(), "Error", "Error Opening Folder: "
-								+ ex.getMessage());
+						MessageDialog.openError(PropertiesView.this.getSite().getShell(), "Error", "Error Opening Folder: " + ex.getMessage());
 					} finally {
 						PluginState.releaseSession(sess);
 					}
 				} else {
-					MessageDialog.openInformation(PropertiesView.this.getSite()
-							.getShell(), "Invalid Id", "Not a Valid Object Id");
+					MessageDialog.openInformation(PropertiesView.this.getSite().getShell(), "Invalid Id", "Not a Valid Object Id");
 				}
 			}
 		};
-		viewFolderContents.setImageDescriptor(PluginHelper
-				.getImageDesc("open_folder.gif"));
-		viewFolderContents
-				.setToolTipText("View Contents of Folder Containing this Object");
+		viewFolderContents.setImageDescriptor(PluginHelper.getImageDesc("open_folder.gif"));
+		viewFolderContents.setToolTipText("View Contents of Folder Containing this Object");
 
 		showTypeHierarchy = new Action("Show Type Tree") {
 			public void run() {
 				if (currentType != null && currentType.length() > 0) {
-					PluginHelper.showQuickTypeHierarchy(currentType,
-							currentDocbase, true);
+					PluginHelper.showQuickTypeHierarchy(currentType, currentDocbase, true);
 				}
 
 			}
 		};
-		showTypeHierarchy
-				.setToolTipText("Show the Type Tree for Current Object (Type)");
-		showTypeHierarchy.setImageDescriptor(PluginHelper
-				.getImageDesc("hierarchy.gif"));
+		showTypeHierarchy.setToolTipText("Show the Type Tree for Current Object (Type)");
+		showTypeHierarchy.setImageDescriptor(PluginHelper.getImageDesc("hierarchy.gif"));
 
 		editPropertyAction = new Action("Edit Property") {
 			public void run() {
@@ -963,8 +914,7 @@ public class PropertiesView extends ViewPart {
 				if (ai.isRepeating()) {
 					try {
 						System.out.println("Is repeeating ");
-						RepeatingAttributesEditDialog dlg = new RepeatingAttributesEditDialog(
-								PropertiesView.this.getSite().getShell(), ai);
+						RepeatingAttributesEditDialog dlg = new RepeatingAttributesEditDialog(PropertiesView.this.getSite().getShell(), ai);
 
 						int status = dlg.open();
 						if (status == dlg.OK) {
@@ -977,10 +927,8 @@ public class PropertiesView extends ViewPart {
 					}
 
 				} else {
-					InputDialog idlg = new InputDialog(PropertiesView.this
-							.getSite().getShell(), "Edit Attribute",
-							"Enter Attribute Value for " + ai.getName(),
-							ai.getValue(), new AttrValueInputValidator(ai));
+					InputDialog idlg = new InputDialog(PropertiesView.this.getSite().getShell(), "Edit Attribute", "Enter Attribute Value for " + ai.getName(), ai.getValue(),
+							new AttrValueInputValidator(ai));
 					int status = idlg.open();
 					if (status == InputDialog.OK) {
 						String val = idlg.getValue();
@@ -996,8 +944,7 @@ public class PropertiesView extends ViewPart {
 	}
 
 	protected void createToolbar() {
-		IToolBarManager tbMgr = getViewSite().getActionBars()
-				.getToolBarManager();
+		IToolBarManager tbMgr = getViewSite().getActionBars().getToolBarManager();
 
 		tbMgr.add(saveProperties);
 		tbMgr.add(viewFolderContents);
@@ -1037,8 +984,7 @@ public class PropertiesView extends ViewPart {
 
 		menuMgr.add(new Separator(TypeView.TREE_EXT_ACTIONS));
 		for (int i = 0; i < propViewExts.size(); i++) {
-			PropertiesViewExtension act = (PropertiesViewExtension) propViewExts
-					.get(i);
+			PropertiesViewExtension act = (PropertiesViewExtension) propViewExts.get(i);
 
 			act.setAttrInfo(ai);
 			act.setTypeName(currentType);
@@ -1054,8 +1000,7 @@ public class PropertiesView extends ViewPart {
 		}
 
 		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS
-				+ "-end"));
+		menuMgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS + "-end"));
 	}
 
 	protected void createCopyAction() {
@@ -1068,8 +1013,7 @@ public class PropertiesView extends ViewPart {
 				} else {
 					String val = selItems[0].getText(1);
 					TextTransfer trans = TextTransfer.getInstance();
-					clipboard.setContents(new String[] { val },
-							new Transfer[] { trans });
+					clipboard.setContents(new String[] { val }, new Transfer[] { trans });
 				}
 			}
 
@@ -1127,8 +1071,7 @@ public class PropertiesView extends ViewPart {
 					String[] vals = ai.getValues();
 					StringBuffer bufVals = new StringBuffer(vals.length * 12);
 					for (int ivals = 0; ivals < vals.length; ivals++)
-						bufVals.append("{").append(vals[ivals]).append("}")
-								.append(" , ");
+						bufVals.append("{").append(vals[ivals]).append("}").append(" , ");
 
 					selItem.setText(1, bufVals.toString());
 				} else
@@ -1165,8 +1108,7 @@ public class PropertiesView extends ViewPart {
 			return;
 		}
 
-		FileDialog fdlg = new FileDialog(getSite().getShell(), SWT.SAVE
-				| SWT.SINGLE);
+		FileDialog fdlg = new FileDialog(getSite().getShell(), SWT.SAVE | SWT.SINGLE);
 		fdlg.setFilterExtensions(new String[] { ".xls", ".txt", "*" });
 		String filename = fdlg.open();
 
@@ -1175,13 +1117,7 @@ public class PropertiesView extends ViewPart {
 
 				File fl = new File(filename);
 				if (fl.exists()) {
-					boolean ok = MessageDialog
-							.openConfirm(
-									getSite().getShell(),
-									"Confirm Overwrite",
-									"The file "
-											+ filename
-											+ " already exists. Do you wish to overwrite this file");
+					boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Confirm Overwrite", "The file " + filename + " already exists. Do you wish to overwrite this file");
 					if (ok == false) {
 						return;
 					}
@@ -1219,14 +1155,10 @@ public class PropertiesView extends ViewPart {
 				}
 
 				fw.close();
-				MessageDialog
-						.openInformation(getSite().getShell(), "Save",
-								"Properties data was successfully saved to "
-										+ filename);
+				MessageDialog.openInformation(getSite().getShell(), "Save", "Properties data was successfully saved to " + filename);
 
 			} catch (Exception ex) {
-				MessageDialog.openError(getSite().getShell(), "Save Error",
-						ex.getMessage());
+				MessageDialog.openError(getSite().getShell(), "Save Error", ex.getMessage());
 			}
 		}
 
@@ -1234,7 +1166,7 @@ public class PropertiesView extends ViewPart {
 
 	/**
 	 * Returns the object id or the type name that is currently in the text box
-	 * 
+	 *
 	 * @return
 	 */
 	private String getBoxValue() {
@@ -1258,12 +1190,10 @@ public class PropertiesView extends ViewPart {
 
 	/**
 	 * Finds extensions to the tree view
-	 * 
 	 */
 	protected void findExtensions() {
 		IExtensionRegistry reg = Platform.getExtensionRegistry();
-		IExtensionPoint ep = reg
-				.getExtensionPoint(DevprogPlugin.PROP_VIEW_EXT_ID);
+		IExtensionPoint ep = reg.getExtensionPoint(DevprogPlugin.PROP_VIEW_EXT_ID);
 		IExtension[] extensions = ep.getExtensions();
 		propViewExts = new ArrayList();
 		for (int i = 0; i < extensions.length; i++) {
@@ -1271,8 +1201,7 @@ public class PropertiesView extends ViewPart {
 			IConfigurationElement[] ce = ext.getConfigurationElements();
 			for (int j = 0; j < ce.length; j++) {
 				try {
-					PropertiesViewExtension obj = (PropertiesViewExtension) ce[j]
-							.createExecutableExtension("class");
+					PropertiesViewExtension obj = (PropertiesViewExtension) ce[j].createExecutableExtension("class");
 					String label = ce[j].getAttribute("label");
 					obj.setText(label);
 					obj.setShell(getSite().getShell());
@@ -1316,8 +1245,11 @@ public class PropertiesView extends ViewPart {
 			}
 		}
 		parent.setExpanded(true);
-		parent.setFont(PluginHelper.changeFontStyle(parent.getDisplay(),
-				parent.getFont(), SWT.BOLD));
+		parent.setFont(PluginHelper.changeFontStyle(parent.getDisplay(), parent.getFont(), SWT.BOLD));
+	}
+
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
 	}
 
 	class AttrComparator implements Comparator {
@@ -1348,10 +1280,8 @@ public class PropertiesView extends ViewPart {
 			persisObj.save();
 			return true;
 		} catch (Exception ex) {
-			DfLogger.error(this, "Error Saving Property " + ai.getName()
-					+ " on object " + this.objId, null, ex);
-			MessageDialog.openError(getSite().getShell(),
-					"Error Saving Attribute", ex.getMessage());
+			DfLogger.error(this, "Error Saving Property " + ai.getName() + " on object " + this.objId, null, ex);
+			MessageDialog.openError(getSite().getShell(), "Error Saving Attribute", ex.getMessage());
 			return false;
 		} finally {
 			PluginState.releaseSession(sess);

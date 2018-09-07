@@ -5,31 +5,22 @@
  */
 package com.documentum.devprog.eclipse.tree;
 
-import com.documentum.fc.common.DfException;
-
+import com.documentum.com.IDfClientX;
+import com.documentum.devprog.eclipse.DevprogPlugin;
+import com.documentum.devprog.eclipse.common.PluginState;
+import com.documentum.devprog.eclipse.common.PreferenceConstants;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfTypedObject;
-
-import com.documentum.devprog.eclipse.DevprogPlugin;
-import com.documentum.devprog.eclipse.common.PluginHelper;
-import com.documentum.devprog.eclipse.common.PluginState;
-import com.documentum.devprog.eclipse.common.PreferenceConstants;
-
-import java.lang.reflect.InvocationTargetException;
-
+import com.documentum.fc.common.DfException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
-import com.documentum.com.IDfClientX;
+import java.lang.reflect.InvocationTargetException;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(patil_aashish@emc.com)
  */
 public class ListViewHelper {
@@ -38,18 +29,13 @@ public class ListViewHelper {
 
 	private static IDfCollection docColl = null;
 
-	// Not used anymore. These are in PluginPreferences now.
-	// private static String[] columns =
-	// {"object_name","r_modify_date","r_full_content_size","a_content_type","r_modifier"};
-
 	public static void showSingleViewFolderContentsRegular(String objId) {
 		try {
 
 			final String folderId = objId;
 
 			IRunnableWithProgress rwp = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor)
-						throws InvocationTargetException, InterruptedException {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					IDfSession sess = null;
 					try {
 						StringBuffer bufQuery = new StringBuffer(32);
@@ -64,8 +50,7 @@ public class ListViewHelper {
 						IDfQuery query = cx.getQuery();
 						query.setDQL(strQuery);
 						sess = PluginState.getSessionById(folderId);
-						folderColl = query
-								.execute(sess, IDfQuery.DF_READ_QUERY);
+						folderColl = query.execute(sess, IDfQuery.DF_READ_QUERY);
 
 						bufQuery = new StringBuffer(32);
 						bufQuery.append("select ")
@@ -87,8 +72,7 @@ public class ListViewHelper {
 
 			};
 
-			IProgressService progServ = PlatformUI.getWorkbench()
-					.getProgressService();
+			IProgressService progServ = PlatformUI.getWorkbench().getProgressService();
 			progServ.busyCursorWhile(rwp);
 
 		} catch (Exception ex) {
@@ -103,8 +87,7 @@ public class ListViewHelper {
 			final String folderId = objId;
 
 			IRunnableWithProgress rwp = new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor)
-						throws InvocationTargetException, InterruptedException {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					IDfSession sess = null;
 					try {
 						StringBuffer bufQuery = new StringBuffer(32);
@@ -119,11 +102,9 @@ public class ListViewHelper {
 						IDfQuery query = cx.getQuery();
 						query.setDQL(strQuery);
 						sess = PluginState.getSessionById(folderId);
-						folderColl = query
-								.execute(sess, IDfQuery.DF_READ_QUERY);
+						folderColl = query.execute(sess, IDfQuery.DF_READ_QUERY);
 
-						System.out.println("Created collection: "
-								+ folderColl.getAttrCount());
+						System.out.println("Created collection: " + folderColl.getAttrCount());
 						/*
 						 * bufQuery = new StringBuffer(32);
 						 * bufQuery.append("select
@@ -145,8 +126,7 @@ public class ListViewHelper {
 
 			};
 
-			IProgressService progServ = PlatformUI.getWorkbench()
-					.getProgressService();
+			IProgressService progServ = PlatformUI.getWorkbench().getProgressService();
 			progServ.busyCursorWhile(rwp);
 
 		} catch (Exception ex) {
@@ -185,9 +165,9 @@ public class ListViewHelper {
 	/**
 	 * Sets the list of columns for the detailed list view. The array should
 	 * contain the docbase object attribute names
-	 * 
+	 *
 	 * @param cols
-	 * 
+	 *
 	 *            public static void setColumns(String[] cols) { columns = cols;
 	 *            }
 	 */
@@ -195,18 +175,17 @@ public class ListViewHelper {
 	/**
 	 * Gets the current list of columns for the detailed list view. The array
 	 * contains the docbase object attributed names
-	 * 
+	 *
 	 * @return
 	 */
 	public static String[] getColumns() {
-		String col = DevprogPlugin.getDefault().getPluginPreferences()
-				.getString(PreferenceConstants.P_VISIBLE_COLUMNS);
+		String col = DevprogPlugin.getDefault().getPreferenceStore().getString(PreferenceConstants.P_VISIBLE_COLUMNS);
 		return col.split(",");
 	}
 
 	/**
 	 * Forms a full-text document search query with the given search terms
-	 * 
+	 *
 	 * @param searchString
 	 * @return
 	 */
@@ -242,11 +221,9 @@ public class ListViewHelper {
 			if (i > 0) {
 				bufQuery.append(" OR ");
 			}
-			bufQuery.append(" UPPER(object_name) LIKE '%").append(tokens[i])
-					.append("%' ");
+			bufQuery.append(" UPPER(object_name) LIKE '%").append(tokens[i]).append("%' ");
 			bufQuery.append(" OR ");
-			bufQuery.append(" UPPER(title) LIKE '%").append(tokens[i])
-					.append("%'");
+			bufQuery.append(" UPPER(title) LIKE '%").append(tokens[i]).append("%'");
 		}
 
 		bufQuery.append(")");
@@ -259,7 +236,7 @@ public class ListViewHelper {
 	/**
 	 * Forms a DQL query based on search terms provided to search for common
 	 * attributes.
-	 * 
+	 *
 	 * @param searchString
 	 * @return
 	 */
@@ -271,8 +248,7 @@ public class ListViewHelper {
 		bufQuery.append(" WHERE ");
 
 		if (fldrId != null) {
-			bufQuery.append(" FOLDER(ID('").append(fldrId)
-					.append("'),DESCEND) AND  ");
+			bufQuery.append(" FOLDER(ID('").append(fldrId).append("'),DESCEND) AND  ");
 		}
 
 		/*
@@ -289,8 +265,7 @@ public class ListViewHelper {
 				bufQuery.append(" OR ");
 			}
 			String tok = tokens[i].trim();
-			bufQuery.append(" UPPER(object_name) LIKE '%").append(tok)
-					.append("%' ");
+			bufQuery.append(" UPPER(object_name) LIKE '%").append(tok).append("%' ");
 			bufQuery.append(" OR ");
 			bufQuery.append(" UPPER(title) LIKE '%").append(tok).append("%'");
 		}

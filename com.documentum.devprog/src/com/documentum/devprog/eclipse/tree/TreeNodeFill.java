@@ -1,33 +1,33 @@
-/*******************************************************************************
- * Copyright (c) 2005-2006, EMC Corporation 
+/* ******************************************************************************
+ * Copyright (c) 2005-2006, EMC Corporation
  * All rights reserved.
 
- * Redistribution and use in source and binary forms, 
- * with or without modification, are permitted provided that 
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided that
  * the following conditions are met:
  *
- * - Redistributions of source code must retain the above copyright 
+ * - Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  * - Redistributions in binary form must reproduce the above copyright
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
- * - Neither the name of the EMC Corporation nor the names of its 
+ * - Neither the name of the EMC Corporation nor the names of its
  *   contributors may be used to endorse or promote products derived from
  *   this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
  * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Jul 17, 2004
@@ -62,9 +62,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(aashish.patil@documentum.com)
  */
 class TreeNodeFill implements IRunnableWithProgress {
@@ -83,20 +80,18 @@ class TreeNodeFill implements IRunnableWithProgress {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core
 	 * .runtime.IProgressMonitor)
 	 */
-	public void run(IProgressMonitor monitor) throws InvocationTargetException,
-			InterruptedException {
+	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 		result = addFolderContents(parentNode, monitor);
 
 	}
 
-	protected Object[] addFolderContents(DocbaseItem parent,
-			IProgressMonitor progMon) {
+	protected Object[] addFolderContents(DocbaseItem parent, IProgressMonitor progMon) {
 		IDfCollection coll = null;
 		LinkedList tList = new LinkedList();
 		IDfSession sess = null;
@@ -114,8 +109,7 @@ class TreeNodeFill implements IRunnableWithProgress {
 				progMon.beginTask("Obtaining folder contents ", fldrLinkCnt);
 
 				StringBuffer bufQuery = new StringBuffer(32);
-				bufQuery.append("select ").append(
-						DocbaseItem.getDefaultQueryAttributes());
+				bufQuery.append("select ").append(DocbaseItem.getDefaultQueryAttributes());
 				// bufQuery.append(" from dm_sysobject where FOLDER(ID('");
 				bufQuery.append(" from dm_folder where FOLDER(ID('");
 				bufQuery.append(fldrId).append("'))");
@@ -140,28 +134,21 @@ class TreeNodeFill implements IRunnableWithProgress {
 					IDfId childId = tObjChild.getId("r_object_id");
 					DocbaseItem nodeData = new DocbaseItem();
 					nodeData.setParent(parent);
-					if ((childId.getTypePart() == IDfId.DM_DOCUMENT)
-							&& (linkCnt > 0)) {
-						IDfSysObject sObjChild = (IDfSysObject) sess
-								.getObject(childId);
+					if ((childId.getTypePart() == IDfId.DM_DOCUMENT) && (linkCnt > 0)) {
+						IDfSysObject sObjChild = (IDfSysObject) sess.getObject(childId);
 						boolean isVDoc = sObjChild.isVirtualDocument();
 						boolean isAssem = false;
 						if (!isVDoc) {
 							isAssem = PluginHelper.isAssembly(sObjChild);
 						}
 						if (isVDoc || isAssem) {
-							IDfVirtualDocument vDoc = sObjChild
-									.asVirtualDocument("", isAssem);
-							IDfVirtualDocumentNode vDocRoot = vDoc
-									.getRootNode();
+							IDfVirtualDocument vDoc = sObjChild.asVirtualDocument("", isAssem);
+							IDfVirtualDocumentNode vDocRoot = vDoc.getRootNode();
 							nodeData.setType(DocbaseItem.VDOC_TYPE);
 							nodeData.setData(vDocRoot);
-							IDfBasicAttributes basicAttrs = vDocRoot
-									.getBasicAttributes();
-							nodeData.addProperty("object_name",
-									basicAttrs.getString("object_name"));
-							nodeData.addProperty("a_content_type",
-									basicAttrs.getString("a_content_type"));
+							IDfBasicAttributes basicAttrs = vDocRoot.getBasicAttributes();
+							nodeData.addProperty("object_name", basicAttrs.getString("object_name"));
+							nodeData.addProperty("a_content_type", basicAttrs.getString("a_content_type"));
 							tList.add(nodeData);
 						}
 					} else if (childId.getTypePart() == IDfId.DM_FOLDER) {
@@ -190,8 +177,7 @@ class TreeNodeFill implements IRunnableWithProgress {
 			return tList.toArray();
 		} catch (DfException dfe) {
 			DfLogger.error(this, "Error getting folder childen", null, dfe);
-			MessageDialog.openError(null, "Folder Contents Error",
-					dfe.getMessage());
+			MessageDialog.openError(null, "Folder Contents Error", dfe.getMessage());
 			return CommonConstants.EMPTY_OBJ_ARRAY;
 		} finally {
 			PluginState.releaseSession(sess);

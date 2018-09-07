@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -26,8 +25,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ ï¿½*ï¿½
+ ï¿½*******************************************************************************/
 
 /*
  * Created on Dec 8, 2005
@@ -48,14 +47,14 @@ import org.eclipse.ui.part.ViewPart;
 public class TestViewVisual extends ViewPart {
 
 	public static final String ID = "com.documentum.devprog.eclipse.test.TestViewVisual"; // TODO
-																							// Needs
-																							// to
-																							// be
-																							// whatever
-																							// is
-																							// mentioned
-																							// in
-																							// plugin.xml
+	// Needs
+	// to
+	// be
+	// whatever
+	// is
+	// mentioned
+	// in
+	// plugin.xml
 	private Composite top = null;
 	private Composite top1 = null;
 	private Browser browser = null;
@@ -94,7 +93,6 @@ public class TestViewVisual extends ViewPart {
 
 	/**
 	 * This method initializes browser
-	 * 
 	 */
 	private void createBrowser() {
 		GridData gridData = new org.eclipse.swt.layout.GridData();
@@ -104,4 +102,7 @@ public class TestViewVisual extends ViewPart {
 		browser.setLayoutData(gridData);
 	}
 
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
+	}
 }

@@ -15,9 +15,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 /**
- * 
- * 
- * 
+ * Preference dialog.
+ * Open by menu Repoint - Preferences - Repo Browser Preferences
+ *
  * @author Aashish Patil(patil_aashish@emc.com)
  */
 public class RepoBrowserPreferencePage extends FieldEditorPreferencePage
@@ -26,7 +26,6 @@ public class RepoBrowserPreferencePage extends FieldEditorPreferencePage
 	public RepoBrowserPreferencePage() {
 		super(GRID);
 		setPreferenceStore(DevprogPlugin.getDefault().getPreferenceStore());
-
 	}
 
 	/*
@@ -37,21 +36,15 @@ public class RepoBrowserPreferencePage extends FieldEditorPreferencePage
 	 * ()
 	 */
 	protected void createFieldEditors() {
-		StringFieldEditor sfe = new StringFieldEditor(
-				PreferenceConstants.P_ATTR_LIST, "Attributes to Query",
-				getFieldEditorParent());
+		StringFieldEditor sfe = new StringFieldEditor(PreferenceConstants.P_ATTR_LIST, "Attributes to Query", 	getFieldEditorParent());
 		sfe.setEmptyStringAllowed(false);
 		addField(sfe);
 
-		StringFieldEditor sfeDefCols = new StringFieldEditor(
-				PreferenceConstants.P_VISIBLE_COLUMNS, "Visible Columns",
-				getFieldEditorParent());
+		StringFieldEditor sfeDefCols = new StringFieldEditor(PreferenceConstants.P_VISIBLE_COLUMNS, "Visible Columns", getFieldEditorParent());
 		sfeDefCols.setEmptyStringAllowed(false);
 		addField(sfeDefCols);
 
-		BooleanFieldEditor bfe = new BooleanFieldEditor(
-				PreferenceConstants.P_SHOW_ALL_OBJECTS, "Show All Objects",
-				getFieldEditorParent());
+		BooleanFieldEditor bfe = new BooleanFieldEditor(PreferenceConstants.P_SHOW_ALL_OBJECTS, "Show All Objects", getFieldEditorParent());
 		addField(bfe);
 	}
 

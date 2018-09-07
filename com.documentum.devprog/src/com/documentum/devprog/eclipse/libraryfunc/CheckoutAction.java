@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
 
@@ -26,8 +26,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ *
+ *******************************************************************************/
 
 /*
  * Created on Jun 29, 2005
@@ -81,7 +81,7 @@ public class CheckoutAction extends RepoTreeExtension {
 			String objId = to.getString("r_object_id");
 			cj.setObjectId(new DfId(objId));
 
-			if (PluginHelper.hasDFCProperty("dfc.checkout.dir") == false) {
+			if (!PluginHelper.hasDFCProperty("dfc.checkout.dir")) {
 				DirectoryDialog dd = new DirectoryDialog(super.getShell());
 				dd.setMessage("No Checkout Folder Configured in dfc.properties. Please Select a Folder For Checkout ");
 				String fldr = dd.open();
@@ -94,9 +94,7 @@ public class CheckoutAction extends RepoTreeExtension {
 			cj.setUser(true);
 			cj.schedule();
 		} catch (Exception ex) {
-
+			ex.printStackTrace();
 		}
-
 	}
-
 }

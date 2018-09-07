@@ -107,4 +107,8 @@ public class ApiView extends ViewPart {
 		IToolBarManager tbMgr = getViewSite().getActionBars().getToolBarManager();
 		tbMgr.add(selectRepo);
 	}
+
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
+	}
 }

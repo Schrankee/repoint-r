@@ -64,14 +64,14 @@ import java.util.Map;
  */
 public final class PluginState {
 	private static Map<String, DocbaseInfo> sessMgrs = new HashMap<String, DocbaseInfo>();
-	//private static Map<String, Object> s_state;
+	private static Map<String, Object> stateMap;
 	private static String currentDocbase = null;
 	private static String logId = PluginState.class.getName();
 	private static String dmConfigFolder = null;
 
-	//static {
-		//s_state = new HashMap<String, Object>();
-	//}
+	static {
+		stateMap = new HashMap<String, Object>();
+	}
 
 	private PluginState() {	}
 
@@ -89,13 +89,13 @@ public final class PluginState {
 		return sessMgrs;
 	}
 
-//	public static Object get(String key) {
-//		return s_state.get(key);
-//	}
-//
-//	public static void set(String key, Object value) {
-//		s_state.put(key, value);
-//	}
+	public static Object get(String key) {
+		return stateMap.get(key);
+	}
+
+	public static void set(String key, Object value) {
+		stateMap.put(key, value);
+	}
 
 
 	/**
@@ -354,8 +354,7 @@ public final class PluginState {
 	}
 
 	/**
-	 * Get the location of the dfc.properties file. Note that this is a best
-	 * guess
+	 * Get the location of the dfc.properties file. Note that this is a best guess
 	 *
 	 * @return location of dfc.properties file
 	 */

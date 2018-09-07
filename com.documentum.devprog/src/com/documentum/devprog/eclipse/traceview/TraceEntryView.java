@@ -1,8 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006, EMC Corporation 
  * All rights reserved.
-
- * Redistribution and use in source and binary forms, 
+ * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided that 
  * the following conditions are met:
  *
@@ -26,8 +25,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- *******************************************************************************/
+ ï¿½*ï¿½
+ ï¿½*******************************************************************************/
 
 /*
  * Created on Sep 7, 2006
@@ -43,20 +42,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 /**
- * 
- * 
- * 
  * @author Aashish Patil(patil_aashish@emc.com)
  */
 public class TraceEntryView extends ViewPart {
-	public static final String TRACE_ENTRY_VIEW_ID = DevprogPlugin.VIEW_EXT_ID
-			+ ".traceEntryView";
+	public static final String TRACE_ENTRY_VIEW_ID = DevprogPlugin.VIEW_EXT_ID + ".traceEntryView";
 
 	private TraceEntryComposite traceEntry = null;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
 	 * .Composite)
@@ -68,7 +63,7 @@ public class TraceEntryView extends ViewPart {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
@@ -80,4 +75,7 @@ public class TraceEntryView extends ViewPart {
 		}
 	}
 
+	public Object getAdapter(Class aClass) {
+		return super.getAdapter(aClass);
+	}
 }
